@@ -1,11 +1,11 @@
-# Example blog with Martini (web framework for Go) 
+# Example Ecommerce site with Golang
 
 Go get the dependencies:
 ~~~
 go get
 ~~~
 
-Run the Server:
-~~~
-go run server.go
-~~~
+run the with fresh or gin
+
+
+Thanks to Codegangsta for negroni and adamar for the negroni-example.
