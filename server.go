@@ -36,23 +36,7 @@ func (i *Item) price() float64 { return i.Price}
 func (i *Item) image() string { return i.Image}
 
 
-type User struct {
-	Id		int
-	Username 	 string
-	Email 		 string
-	item 			Item
-	Password  string
-}
 
-func (u *User) title() string { return u.item.Title }
-func (u *User) description() template.HTML { return u.item.Description }
-func (u *User) price() float64 { return u.item.Price}
-
-
-var user User
-var username = user.Username
-var password = user.Password
-var email = user.Email
 
 
 var db *sql.DB = SetupDB()
@@ -107,6 +91,7 @@ func main() {
 				panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
 			}
 
+		ShowItems(w, r)
 		SimplePage(w, r, "home")
 	})
 
@@ -129,7 +114,7 @@ func main() {
 		})
 
 		mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		SimplePage(w, r, "user")
+		SimpleAuthenticatedPage(w, r, "user")
 	})
 
 
@@ -169,30 +154,31 @@ func errHandler(err error) {
 func PostLogin(w http.ResponseWriter, req *http.Request){
 
 
-//session := sessions.GetSession(req)
+session := sessions.GetSession(req)
 
-//var password_in_database string
+var password_in_database string
+var email string
 
 
-	//username, password = req.FormValue("inputUsername"), req.FormValue("inputPassword")
-	//err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
+	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
+	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 
-	//	if err == sql.ErrNoRows {
-		//	http.Redirect(w, req, "/authfail", 301)
-//	} else if err != nil {
-		//	log.Print(err)
-			//http.Redirect(w, req, "/authfail", 301)
-		//}
+		if err == sql.ErrNoRows {
+			http.Redirect(w, req, "/authfail", 301)
+	} else if err != nil {
+			log.Print(err)
+			http.Redirect(w, req, "/authfail", 301)
+		}
 
-	//	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
-	//	if err == bcrypt.ErrMismatchedHashAndPassword {
-		//	http.Redirect(w, req, "/authfail", 301)
-	//	} else if err != nil {
-		//	log.Print(err)
-		//	http.Redirect(w, req, "/authfail", 301)
-	//	}
+	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			http.Redirect(w, req, "/authfail", 301)
+		} else if err != nil {
+			log.Print(err)
+			http.Redirect(w, req, "/authfail", 301)
+		}
 
-		//session.Set("email", email)
+		session.Set("email", email)
 		http.Redirect(w, req, "/user", 302)
 }
 
@@ -224,4 +210,21 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 
 
 		http.Redirect(w, req, "/", 302)
+}
+
+
+
+func ShowItems(w http.ResponseWriter, r *http.Request) {
+    item := Item{}
+
+    fp := path.Join("templates", "home.tmpl")
+    tmpl, err := template.ParseFiles(fp)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    if err := tmpl.Execute(w, item); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
 }

@@ -1,0 +1,8 @@
+# webshop
+./server.go:188: undefined: username
+./server.go:189: undefined: password
+./server.go:190: undefined: email
+./server.go:192: undefined: password
+./server.go:197: undefined: username
+./server.go:197: undefined: email
+./server.go:220: undefined: path
