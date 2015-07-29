@@ -4,5 +4,6 @@ CREATE TABLE items (
 	  Date  date  NOT NULL,
 		Description varchar (255) NOT NULL
 		Seller  varchar (255) NOT NULL,
-		Price   money 
+		Price   money,
+		Image varchar (255) NOT NULL
 );

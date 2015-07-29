@@ -6,11 +6,17 @@ import (
 	"html/template"
 	"log"
 	"fmt"
+	"path"
+	"reflect"
+
+
 
 
 	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-sessions"
 	"github.com/goincremental/negroni-sessions/cookiestore"
+	"github.com/julienschmidt/httprouter"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
@@ -39,13 +45,14 @@ func (i *Item) image() string { return i.Image}
 
 
 
-var db *sql.DB = SetupDB()
+var db *sqlx.DB = SetupDB()
 
-func SetupDB() * sql.DB{
-	db, err := sql.Open("postgres", "postgres://devmenon:cloud01@localhost:5432/webshop?sslmode=disable")
-	if err != nil {
-		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-	}
+func SetupDB() *sqlx.DB{
+	db, err := sqlx.Connect("postgres", "user=devmenon dbname=webshop sslmode=disable")
+     if err != nil {
+         log.Fatalln(err)
+     }
+
 
 	return db
 }
@@ -59,70 +66,59 @@ func main() {
 	defer db.Close()
 
 
-	mux := http.NewServeMux()
+//	mux := http.NewServeMux()
+router := httprouter.New()
 	n := negroni.Classic()
-  n.UseHandler(mux)
+  n.UseHandler(router)
+
 	store := cookiestore.New([]byte("ohhhsooosecret"))
 	n.Use(sessions.Sessions("global_session_store", store))
 
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		var items []Item
-
-		rows, err := db.Query("select * from items")
-		if err != nil {
-			panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-		}
-		defer rows.Close()
-
-			for rows.Next() {
-				var item Item
-				var description string
-				err := rows.Scan(&item.Id, &item.Title, &item.Date, &description, &item.Seller, &item.Price)
-					if err != nil {
-						panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-					}
-		item.Description = template.HTML(description)
-		items = append(items, item)
-
-			}
-			err = rows.Err()
-			if err != nil {
-				panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-			}
-
-		ShowItems(w, r)
-		SimplePage(w, r, "home")
-	})
+	router.GET("/", Home)
 
 
-	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			SimplePage(w, r, "try")
-		} else if r.Method == "POST" {
-			fmt.Printf("Check")
-			PostLogin(w, r)
-		}
-	})
+	router.GET("/login", Login)
 
-	mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-			Logout(w, r)
-		})
+	router.GET("/logout", LogoutPage)
 
-		mux.HandleFunc("/authfail", func(w http.ResponseWriter, r *http.Request){
-						log.Print("Authorization Failed")
-		})
+		router.GET("/authfail", Authfail)
 
-		mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		SimpleAuthenticatedPage(w, r, "user")
-	})
-
+		router.GET("/user", User)
 
 
 	n.Run(":2500")
 }
 
 
+func Home(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
+//ShowItems(w, r)
+SimplePage(w,r, "home")
+}
+
+func Login(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
+	if r.Method == "GET" {
+		SimplePage(w, r, "try")
+	} else if r.Method == "POST" {
+		fmt.Println("Check")
+		PostLogin(w, r)
+	}
+}
+
+func LogoutPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		Logout(w, r)
+	}
+
+func Authfail(w http.ResponseWriter, r *http.Request,  _ httprouter.Params){
+				log.Print("Authorization Failed")
+}
+
+func User(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
+SimpleAuthenticatedPage(w, r, "user")
+}
+
+// end of page handlers
+//action handlers begin
 
 func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 	r := render.New(render.Options{})
@@ -185,9 +181,9 @@ var email string
 
 
 func PostSignup(w http.ResponseWriter, req *http.Request) {
-	username = req.FormValue("inputUsername")
-	password = req.FormValue("inputPassword")
-	email = req.FormValue("inputEmail")
+	username := req.FormValue("inputUsername")
+	password := req.FormValue("inputPassword")
+	email := req.FormValue("inputEmail")
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
@@ -215,16 +211,39 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 
 
 func ShowItems(w http.ResponseWriter, r *http.Request) {
-    item := Item{}
+	// Loop through rows using only one struct
+     item := Item{}
+     rows, err := db.Queryx("SELECT * FROM items")
+     for rows.Next() {
+         err := rows.StructScan(&item)
+         if err != nil {
+					 log.Print("is this the problem?")
+             log.Fatalln(err)
+         }
+         fmt.Printf("%#v\n", item)
+     }
 
-    fp := path.Join("templates", "home.tmpl")
-    tmpl, err := template.ParseFiles(fp)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
 
-    if err := tmpl.Execute(w, item); err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-    }
+ fp := path.Join("templates", "home.tmpl")
+
+ loop := reflect.ValueOf(item)
+
+	 values := make([]interface{}, loop.NumField())
+
+	 for i := 0; i < loop.NumField(); i++ {
+			 values[i] = loop.Field(i).Interface()
+	 }
+
+
+		    tmpl, err := template.ParseFiles(fp)
+		    if err != nil {
+
+		        http.Error(w, err.Error(), http.StatusInternalServerError)
+		        return
+		    }
+
+		    if err := tmpl.Execute(w, loop); err != nil {
+		        http.Error(w, err.Error(), http.StatusInternalServerError)
+		    }
+
 }
