@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"path"
 	"reflect"
-
+	"time"
 
 
 
@@ -21,24 +21,25 @@ import (
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
 
+
 )
 
 type Item struct {
 	Id          int
 	Title       string
-	Date        string
-	Description template.HTML
+	Date        time.Time
+	Description string
 	Seller      string
-	Price       float64
+	Price       string
 	Image       string
 }
 
 func (i *Item) id() int { return i.Id }
 func (i *Item) title() string { return i.Title }
-func (i *Item) date() string { return  i.Date }
-func (i *Item) description() template.HTML { return i.Description }
+
+//func (i *Item) description() template.HTML { return i.Description }
 func (i *Item) seller() string { return i.Seller}
-func (i *Item) price() float64 { return i.Price}
+
 func (i *Item) image() string { return i.Image}
 
 
@@ -66,10 +67,10 @@ func main() {
 	defer db.Close()
 
 
-//	mux := http.NewServeMux()
 router := httprouter.New()
 	n := negroni.Classic()
   n.UseHandler(router)
+
 
 	store := cookiestore.New([]byte("ohhhsooosecret"))
 	n.Use(sessions.Sessions("global_session_store", store))
@@ -78,7 +79,7 @@ router := httprouter.New()
 	router.GET("/", Home)
 
 
-	router.GET("/login", Login)
+	router.POST("/login", Login)
 
 	router.GET("/logout", LogoutPage)
 
@@ -92,17 +93,14 @@ router := httprouter.New()
 
 
 func Home(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
-//ShowItems(w, r)
-SimplePage(w,r, "home")
+ShowItems(w, r)
+
 }
 
 func Login(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
-	if r.Method == "GET" {
-		SimplePage(w, r, "try")
-	} else if r.Method == "POST" {
-		fmt.Println("Check")
+
 		PostLogin(w, r)
-	}
+
 }
 
 func LogoutPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -147,35 +145,36 @@ func errHandler(err error) {
 }
 
 
-func PostLogin(w http.ResponseWriter, req *http.Request){
+func PostLogin(w http.ResponseWriter, r *http.Request){
 
+SimplePage(w,r, "try")
 
-session := sessions.GetSession(req)
+session := sessions.GetSession(r)
 
 var password_in_database string
 var email string
 
 
-	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
+	username, password := r.FormValue("inputUsername"), r.FormValue("inputPassword")
 	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 
 		if err == sql.ErrNoRows {
-			http.Redirect(w, req, "/authfail", 301)
+			http.Redirect(w, r, "/authfail", 301)
 	} else if err != nil {
 			log.Print(err)
-			http.Redirect(w, req, "/authfail", 301)
+			http.Redirect(w, r, "/authfail", 301)
 		}
 
 	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
 		if err == bcrypt.ErrMismatchedHashAndPassword {
-			http.Redirect(w, req, "/authfail", 301)
+			http.Redirect(w, r, "/authfail", 301)
 		} else if err != nil {
 			log.Print(err)
-			http.Redirect(w, req, "/authfail", 301)
+			http.Redirect(w, r, "/authfail", 301)
 		}
 
 		session.Set("email", email)
-		http.Redirect(w, req, "/user", 302)
+		http.Redirect(w, r, "/user", 302)
 }
 
 
@@ -211,6 +210,9 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 
 
 func ShowItems(w http.ResponseWriter, r *http.Request) {
+
+	SimplePage(w,r, "home")
+
 	// Loop through rows using only one struct
      item := Item{}
      rows, err := db.Queryx("SELECT * FROM items")
