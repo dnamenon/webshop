@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"path"
 	"reflect"
-	"time"
+  "time"
 
 
 
@@ -37,9 +37,8 @@ type Item struct {
 func (i *Item) id() int { return i.Id }
 func (i *Item) title() string { return i.Title }
 
-//func (i *Item) description() template.HTML { return i.Description }
-func (i *Item) seller() string { return i.Seller}
 
+func (i *Item) seller() string { return i.Seller}
 func (i *Item) image() string { return i.Image}
 
 
@@ -210,9 +209,6 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 
 
 func ShowItems(w http.ResponseWriter, r *http.Request) {
-
-	SimplePage(w,r, "home")
-
 	// Loop through rows using only one struct
      item := Item{}
      rows, err := db.Queryx("SELECT * FROM items")
