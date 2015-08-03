@@ -5,7 +5,7 @@ Go get the dependencies:
 go get
 ~~~
 
-run the with fresh or gin
+run with fresh 
 
 
 Thanks to Codegangsta for negroni and adamar for the negroni-example.
