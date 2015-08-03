@@ -122,14 +122,14 @@
     <!-- Page Content -->
 
     <div class="col-md-9">
-{{range .item}}
+ 
 
         <div class="thumbnail">
             <img class="img-responsive" src="http://placehold.it/800x300" alt="">
             <div class="caption-full">
 
                 <h4 class="pull-right">${{ .Price }}</h4>
-                <h4><a href="#">{{ .Title}}</a>
+                <h4><a href="/item:id">{{ .Title}}</a>
                 </h4>
                 <p>See more snippets like these online store reviews at <a target="_blank" href="http://bootsnipp.com">Bootsnipp - http://bootsnipp.com</a>.</p>
                 <p>Want to make these reviews work? Check out
@@ -140,7 +140,6 @@
 
         </div>
 
-{{end}}
 
     </div>
 

@@ -213,16 +213,14 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
      item := Item{}
      rows, err := db.Queryx("SELECT * FROM items")
      for rows.Next() {
-         err := rows.StructScan(&item)
+         err = rows.StructScan(&item)
          if err != nil {
 					 log.Print("is this the problem?")
              log.Fatalln(err)
          }
-         fmt.Printf("%#v\n", item)
-     }
 
-
- fp := path.Join("templates", "home.tmpl")
+				  fmt.Printf("%#v\n", item)
+				 fp := path.Join("templates", "home.tmpl")
 
  loop := reflect.ValueOf(item)
 
@@ -240,8 +238,15 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
 		        return
 		    }
 
-		    if err := tmpl.Execute(w, loop); err != nil {
+		    if err := tmpl.Execute(w, item); err != nil {
+					fmt.Println("is this the error")
 		        http.Error(w, err.Error(), http.StatusInternalServerError)
 		    }
+
+
+
+
+
+     }
 
 }
