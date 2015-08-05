@@ -65,10 +65,12 @@ func main() {
 
 	defer db.Close()
 
-
+mux := http.NewServeMux()
 router := httprouter.New()
 	n := negroni.Classic()
   n.UseHandler(router)
+	n.UseHandler(mux)
+
 
 
 	store := cookiestore.New([]byte("ohhhsooosecret"))
@@ -78,7 +80,15 @@ router := httprouter.New()
 	router.GET("/", Home)
 
 
-	router.POST("/login", Login)
+	mux.HandleFunc("/login", func (w http.ResponseWriter, r *http.Request){
+
+	  if r.Method == "GET" {
+			SimplePage(w, r, "try")
+	} else if r.Method == "POST" {
+			PostLogin(w, r)
+	}
+
+	})
 
 	router.GET("/logout", LogoutPage)
 
@@ -96,11 +106,7 @@ ShowItems(w, r)
 
 }
 
-func Login(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
 
-		PostLogin(w, r)
-
-}
 
 func LogoutPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		Logout(w, r)
@@ -146,7 +152,7 @@ func errHandler(err error) {
 
 func PostLogin(w http.ResponseWriter, r *http.Request){
 
-SimplePage(w,r, "try")
+
 
 session := sessions.GetSession(r)
 
