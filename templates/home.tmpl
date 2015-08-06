@@ -41,7 +41,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">You Shop Name</a>
+        <a class="navbar-brand" href="/">WEBSHOP</a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
@@ -125,11 +125,11 @@
 
 
         <div class="thumbnail">
-            <img src= {{.Image}} >
+            <img class="img-responsive" src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.Image}} alt="">
             <div class="caption-full">
 
                 <h4 class="pull-right">{{ .Price }}</h4>
-                <h4><a href="/item:id">{{ .Title}}</a>
+                <h4><a href=/item/:{{.Id}}>{{ .Title}}</a>
                 </h4>
 
                 <p>{{ .Description}}</p>
@@ -155,7 +155,7 @@
 <footer>
     <div class="row">
         <div class="col-lg-12">
-            <p>Copyright &copy; Webshop 2015</p>
+            <p>Copyright &copy; WEBSHOP 2015</p>
         </div>
     </div>
 </footer>
@@ -174,7 +174,7 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
 
-    <script src="golang" charset="utf-8"></script>
+<!--  <script src="golang" charset="utf-8"></script> -->
 
 </body>
 

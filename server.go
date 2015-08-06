@@ -25,6 +25,7 @@ import (
 )
 
 type Item struct {
+
 	Id          int
 	Title       string
 	Date        time.Time
@@ -92,9 +93,11 @@ router := httprouter.New()
 
 	router.GET("/logout", LogoutPage)
 
-		router.GET("/authfail", Authfail)
+	router.GET("/authfail", Authfail)
 
-		router.GET("/user", User)
+	router.GET("/user", User)
+
+	router.GET("/item/:id", Itemid)
 
 
 	n.Run(":2500")
@@ -118,6 +121,10 @@ func Authfail(w http.ResponseWriter, r *http.Request,  _ httprouter.Params){
 
 func User(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
 SimpleAuthenticatedPage(w, r, "user")
+}
+
+func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
+   ShowItemidPage(w,r)
 }
 
 // end of page handlers
@@ -254,5 +261,37 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
 
 
      }
+
+}
+
+
+func ShowItemidPage(w http.ResponseWriter, r *http.Request){
+	item := Item{}
+	rows, err := db.Queryx("SELECT * FROM items")
+	for rows.Next() {
+			err = rows.StructScan(&item)
+			if err != nil {
+			 log.Print("is this the problem?")
+					log.Fatalln(err)
+			}
+
+
+		 fp := path.Join("templates", "item.tmpl")
+
+
+		 tmpl, err2 := template.ParseFiles(fp)
+		 if err2 != nil {
+
+				 http.Error(w, err2.Error(), http.StatusInternalServerError)
+				 return
+		 }
+
+		 if err2 := tmpl.Execute(w, item); err2 != nil {
+			 fmt.Println("is this the error")
+				 http.Error(w, err2.Error(), http.StatusInternalServerError)
+		 }
+
+
+	 }
 
 }
