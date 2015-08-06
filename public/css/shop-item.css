@@ -6,6 +6,14 @@
 
 body {
     padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+    background: url('https://raw.githubusercontent.com/dnamenon/webshop/master/images/images.jpg') fixed;
+    background-size: cover;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+  padding-top: 70px;
 }
 
 .thumbnail img {
@@ -25,8 +33,4 @@ body {
 .thumbnail .caption-full {
     padding: 9px;
     color: #333;
-}
-
-footer {
-    margin: 50px 0;
 }

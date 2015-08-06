@@ -121,28 +121,41 @@
 
     <!-- Page Content -->
 
-    <div class="col-md-9">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+  			<div class="col-sm-6 col-md-4">
+  				<div class="thumbnail" >
+  					<h4 class="text-center"><span class="label label-info"></span></h4>
+  					<img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.Image}} class="img-responsive">
+  					<div class="caption">
+  						<div class="row">
+  							<div class="col-md-6 col-xs-6">
+  								<h3>{{.Title}}</h3>
+  							</div>
+  							<div class="col-md-6 col-xs-6 price">
+  								<h3>
+  								<label>{{.Price}}</label></h3>
+  							</div>
+  						</div>
+  						<p>{{.Description}}</p>
+  						<div class="row">
+  							<div class="col-md-6">
+  								<a class="btn btn-primary btn-product"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+  							</div>
+  							<div class="col-md-6">
+  								<a href="#" class="btn btn-success btn-product"><span class="glyphicon glyphicon-shopping-cart"></span> Buy</a></div>
+  						</div>
+
+  						<p> </p>
+  					</div>
+  				</div>
+  			</div>
+      </div>
+   </div>
 
 
-        <div class="thumbnail">
-            <img class="img-responsive" src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.Image}} alt="">
-            <div class="caption-full">
 
-                <h4 class="pull-right">{{ .Price }}</h4>
-                <h4><a href=/item/:{{.Id}}>{{ .Title}}</a>
-                </h4>
-
-                <p>{{ .Description}}</p>
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-
-</div>
 
 
 <!-- /.container -->
