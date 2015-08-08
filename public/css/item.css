@@ -37,7 +37,7 @@ background-color: #F1F1F1;
 
 .bg_blur
 {
-    background-image:url('http://data2.whicdn.com/images/139218968/large.jpg');
+    
     height: 300px;
     background-size: cover;
 }

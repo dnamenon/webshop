@@ -13,11 +13,11 @@
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
+<link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/nav.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="css/shop-item.css" rel="stylesheet">
+<link href="css/shop-item.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -47,7 +47,7 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#"> Shop <span class="sr-only">(current)</span></a></li>
+          <li><a href="#"> Shop </a></li>
           <li><a href="/login">Login</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
@@ -141,10 +141,7 @@
   						<p>{{.Description}}</p>
   						<div class="row">
   							<div class="col-md-6">
-  								<a class="btn btn-primary btn-product"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
-  							</div>
-  							<div class="col-md-6">
-  								<a href="#" class="btn btn-success btn-product"><span class="glyphicon glyphicon-shopping-cart"></span> Buy</a></div>
+  								<a href=item/:{{.Id}} class="btn btn-success btn-product"><span class="glyphicon glyphicon-shopping-cart"></span> Buy</a></div>
   						</div>
 
   						<p> </p>
@@ -167,7 +164,7 @@
 <!-- Footer -->
 <footer>
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-3">
             <p>Copyright &copy; WEBSHOP 2015</p>
         </div>
     </div>

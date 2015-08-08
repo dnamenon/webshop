@@ -9,6 +9,8 @@ import (
 	"path"
 	"reflect"
   "time"
+//	"strconv"
+//	"strings"
 
 
 
@@ -62,9 +64,7 @@ func SetupDB() *sqlx.DB{
 
 func main() {
 
-
-
-	defer db.Close()
+defer db.Close()
 
 mux := http.NewServeMux()
 router := httprouter.New()
@@ -72,14 +72,10 @@ router := httprouter.New()
   n.UseHandler(router)
 	n.UseHandler(mux)
 
-
-
 	store := cookiestore.New([]byte("ohhhsooosecret"))
 	n.Use(sessions.Sessions("global_session_store", store))
 
-
 	router.GET("/", Home)
-
 
 	mux.HandleFunc("/login", func (w http.ResponseWriter, r *http.Request){
 
@@ -98,7 +94,6 @@ router := httprouter.New()
 	router.GET("/user", User)
 
 	router.GET("/item/:id", Itemid)
-
 
 	n.Run(":2500")
 }
@@ -124,7 +119,13 @@ SimpleAuthenticatedPage(w, r, "user")
 }
 
 func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
-   ShowItemidPage(w,r)
+   str := ps[0].Value
+
+	 var b int
+	 if _, err := fmt.Sscanf(str, ":%5d", &b); err == nil{
+		 ShowItemid(w,r,b)
+	 }
+
 }
 
 // end of page handlers
@@ -167,8 +168,8 @@ var password_in_database string
 var email string
 
 
-	username, password := r.FormValue("inputUsername"), r.FormValue("inputPassword")
-	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
+username, password := r.FormValue("inputUsername"), r.FormValue("inputPassword")
+err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 
 		if err == sql.ErrNoRows {
 			http.Redirect(w, r, "/authfail", 301)
@@ -177,7 +178,7 @@ var email string
 			http.Redirect(w, r, "/authfail", 301)
 		}
 
-	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
+err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
 		if err == bcrypt.ErrMismatchedHashAndPassword {
 			http.Redirect(w, r, "/authfail", 301)
 		} else if err != nil {
@@ -214,16 +215,14 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 	session := sessions.GetSession(req)
 	session.Delete("email")
 
-
-
-		http.Redirect(w, req, "/", 302)
+	http.Redirect(w, req, "/", 302)
 }
 
 
 
 func ShowItems(w http.ResponseWriter, r *http.Request) {
 	// Loop through rows using only one struct
-     item := Item{}
+item := Item{}
      rows, err := db.Queryx("SELECT * FROM items")
      for rows.Next() {
          err = rows.StructScan(&item)
@@ -232,14 +231,14 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
              log.Fatalln(err)
          }
 
-				  fmt.Printf("%#v\n", item)
-				 fp := path.Join("templates", "home.tmpl")
+ fmt.Printf("%#v\n", item)
+ fp := path.Join("templates", "home.tmpl")
 
  loop := reflect.ValueOf(item)
 
-	 values := make([]interface{}, loop.NumField())
+ values := make([]interface{}, loop.NumField())
 
-	 for i := 0; i < loop.NumField(); i++ {
+ for i := 0; i < loop.NumField(); i++ {
 			 values[i] = loop.Field(i).Interface()
 	 }
 
@@ -256,42 +255,24 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
 		        http.Error(w, err.Error(), http.StatusInternalServerError)
 		    }
 
-
-
-
-
      }
 
 }
 
 
-func ShowItemidPage(w http.ResponseWriter, r *http.Request){
-	item := Item{}
-	rows, err := db.Queryx("SELECT * FROM items")
-	for rows.Next() {
-			err = rows.StructScan(&item)
-			if err != nil {
-			 log.Print("is this the problem?")
-					log.Fatalln(err)
+func ShowItemid(w http.ResponseWriter, r *http.Request, i int){
+	itemid := Item{}
+	    err := db.Get(&itemid, "SELECT * FROM items WHERE id=$1", i)
+			if err != nil{
+				log.Print("This must be the problem")
 			}
 
+fmt.Printf("%#v\n", itemid.Id)
+if itemid.Id == 0{
+	fmt.Println("My Probz")
 
-		 fp := path.Join("templates", "item.tmpl")
-
-
-		 tmpl, err2 := template.ParseFiles(fp)
-		 if err2 != nil {
-
-				 http.Error(w, err2.Error(), http.StatusInternalServerError)
-				 return
-		 }
-
-		 if err2 := tmpl.Execute(w, item); err2 != nil {
-			 fmt.Println("is this the error")
-				 http.Error(w, err2.Error(), http.StatusInternalServerError)
-		 }
-
-
-	 }
-
+	http.Redirect(w, r, "/", 302)
+}
+render := render.New(render.Options{})
+render.HTML(w, http.StatusOK, "item", &itemid)
 }
