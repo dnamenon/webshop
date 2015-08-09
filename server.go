@@ -9,9 +9,6 @@ import (
 	"path"
 	"reflect"
   "time"
-//	"strconv"
-//	"strings"
-
 
 
 	"github.com/codegangsta/negroni"
@@ -64,28 +61,25 @@ func SetupDB() *sqlx.DB{
 
 func main() {
 
-defer db.Close()
+  defer db.Close()
 
-mux := http.NewServeMux()
-router := httprouter.New()
+  router := httprouter.New()
 	n := negroni.Classic()
   n.UseHandler(router)
-	n.UseHandler(mux)
+
 
 	store := cookiestore.New([]byte("ohhhsooosecret"))
 	n.Use(sessions.Sessions("global_session_store", store))
 
 	router.GET("/", Home)
 
-	mux.HandleFunc("/login", func (w http.ResponseWriter, r *http.Request){
+  router.GET("/login", Login)
 
-	  if r.Method == "GET" {
-			SimplePage(w, r, "try")
-	} else if r.Method == "POST" {
-			PostLogin(w, r)
-	}
+	router.HandlerFunc("POST", "/login", PostLogin)
 
-	})
+	router.GET("/signup", Signup)
+
+	router.HandlerFunc("POST", "/signup", PostSignup)
 
 	router.GET("/logout", LogoutPage)
 
@@ -104,7 +98,10 @@ ShowItems(w, r)
 
 }
 
+func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	SimplePage(w,r, "try")
 
+}
 
 func LogoutPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		Logout(w, r)
@@ -126,6 +123,10 @@ func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
 		 ShowItemid(w,r,b)
 	 }
 
+}
+
+func Signup(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+	SimplePage(w,r,"signup")
 }
 
 // end of page handlers
@@ -162,7 +163,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request){
 
 
 
-session := sessions.GetSession(r)
+
 
 var password_in_database string
 var email string
@@ -170,7 +171,7 @@ var email string
 
 username, password := r.FormValue("inputUsername"), r.FormValue("inputPassword")
 err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
-
+fmt.Println(password_in_database)
 		if err == sql.ErrNoRows {
 			http.Redirect(w, r, "/authfail", 301)
 	} else if err != nil {
@@ -186,6 +187,7 @@ err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(passwor
 			http.Redirect(w, r, "/authfail", 301)
 		}
 
+		session := sessions.GetSession(r)
 		session.Set("email", email)
 		http.Redirect(w, r, "/user", 302)
 }
@@ -193,9 +195,9 @@ err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(passwor
 
 
 func PostSignup(w http.ResponseWriter, req *http.Request) {
-	username := req.FormValue("inputUsername")
-	password := req.FormValue("inputPassword")
-	email := req.FormValue("inputEmail")
+	username := req.FormValue("reg_username")
+	password := req.FormValue("reg_password")
+	email := req.FormValue("reg_email")
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
