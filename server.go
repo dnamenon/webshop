@@ -10,17 +10,16 @@ import (
 	"reflect"
   "time"
 
+  "webshop/shopsess"
 
 	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-sessions"
 	"github.com/goincremental/negroni-sessions/cookiestore"
+	"github.com/unrolled/render"
+	"golang.org/x/crypto/bcrypt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/unrolled/render"
-	"golang.org/x/crypto/bcrypt"
-
-
 )
 
 type Item struct {
@@ -33,13 +32,6 @@ type Item struct {
 	Price       string
 	Image       string
 }
-
-func (i *Item) id() int { return i.Id }
-func (i *Item) title() string { return i.Title }
-
-
-func (i *Item) seller() string { return i.Seller}
-func (i *Item) image() string { return i.Image}
 
 
 
@@ -63,10 +55,12 @@ func main() {
 
   defer db.Close()
 
+	s := shopsess.Sessions()
+
   router := httprouter.New()
 	n := negroni.Classic()
   n.UseHandler(router)
-
+  n.Use(s)
 
 	store := cookiestore.New([]byte("ohhhsooosecret"))
 	n.Use(sessions.Sessions("global_session_store", store))
@@ -77,7 +71,7 @@ func main() {
 
 	router.HandlerFunc("POST", "/login", PostLogin)
 
-	router.GET("/signup", Signup)
+  router.GET("/signup", Signup)
 
 	router.HandlerFunc("POST", "/signup", PostSignup)
 
@@ -112,7 +106,7 @@ func Authfail(w http.ResponseWriter, r *http.Request,  _ httprouter.Params){
 }
 
 func User(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
-SimpleAuthenticatedPage(w, r, "user")
+SimplePage(w, r, "user")
 }
 
 func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
@@ -152,44 +146,35 @@ func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template 
 
 
 
-func errHandler(err error) {
-	if err != nil {
-		log.Print(err)
-	}
-}
-
-
-func PostLogin(w http.ResponseWriter, r *http.Request){
-
-
-
-
+func PostLogin(w http.ResponseWriter, req *http.Request){
 
 var password_in_database string
 var email string
 
 
-username, password := r.FormValue("inputUsername"), r.FormValue("inputPassword")
+username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
 err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 fmt.Println(password_in_database)
 		if err == sql.ErrNoRows {
-			http.Redirect(w, r, "/authfail", 301)
+			http.Redirect(w, req, "/authfail", 301)
 	} else if err != nil {
 			log.Print(err)
-			http.Redirect(w, r, "/authfail", 301)
+			http.Redirect(w, req, "/authfail", 301)
 		}
 
 err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
 		if err == bcrypt.ErrMismatchedHashAndPassword {
-			http.Redirect(w, r, "/authfail", 301)
+			http.Redirect(w, req, "/authfail", 301)
 		} else if err != nil {
 			log.Print(err)
-			http.Redirect(w, r, "/authfail", 301)
+			http.Redirect(w, req, "/authfail", 301)
 		}
 
-		session := sessions.GetSession(r)
+fmt.Println(req)
+
+		session := sessions.GetSession(req)
 		session.Set("email", email)
-		http.Redirect(w, r, "/user", 302)
+		http.Redirect(w, req, "/user", 302)
 }
 
 
@@ -221,10 +206,9 @@ func Logout(w http.ResponseWriter, req *http.Request) {
 }
 
 
-
 func ShowItems(w http.ResponseWriter, r *http.Request) {
 	// Loop through rows using only one struct
-item := Item{}
+  item := Item{}
      rows, err := db.Queryx("SELECT * FROM items")
      for rows.Next() {
          err = rows.StructScan(&item)
@@ -233,14 +217,14 @@ item := Item{}
              log.Fatalln(err)
          }
 
- fmt.Printf("%#v\n", item)
- fp := path.Join("templates", "home.tmpl")
+  fmt.Printf("%#v\n", item)
+  fp := path.Join("templates", "home.tmpl")
 
- loop := reflect.ValueOf(item)
+loop := reflect.ValueOf(item)
 
- values := make([]interface{}, loop.NumField())
+  values := make([]interface{}, loop.NumField())
 
- for i := 0; i < loop.NumField(); i++ {
+  for i := 0; i < loop.NumField(); i++ {
 			 values[i] = loop.Field(i).Interface()
 	 }
 
@@ -261,7 +245,6 @@ item := Item{}
 
 }
 
-
 func ShowItemid(w http.ResponseWriter, r *http.Request, i int){
 	itemid := Item{}
 	    err := db.Get(&itemid, "SELECT * FROM items WHERE id=$1", i)
@@ -273,7 +256,7 @@ fmt.Printf("%#v\n", itemid.Id)
 if itemid.Id == 0{
 	fmt.Println("My Probz")
 
-	http.Redirect(w, r, "/", 302)
+	 http.Redirect(w, r, "/", 302)
 }
 render := render.New(render.Options{})
 render.HTML(w, http.StatusOK, "item", &itemid)
