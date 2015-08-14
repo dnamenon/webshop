@@ -10,11 +10,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/codegangsta/negroni"
-	"github.com/goincremental/negroni-sessions"
-	"github.com/goincremental/negroni-sessions/cookiestore"
+
 	"github.com/jmoiron/sqlx"
-	"github.com/julienschmidt/httprouter"
+	"github.com/dnamenon/hitch"
 	_ "github.com/lib/pq"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
@@ -47,67 +45,60 @@ func main() {
 
 	defer db.Close()
 
-	router := httprouter.New()
-	n := negroni.Classic()
-	n.UseHandler(router)
+	router := hitch.New(":2500")
 
+  router.Get("/", http.HandlerFunc(Home))
 
-	store := cookiestore.New([]byte("ohhhsooosecret"))
-	fmt.Println(store)
-		n.Use(sessions.Sessions("global_session_store", store))
+	router.Get("/login",  http.HandlerFunc(Login))
 
+	router.HandleFunc("POST", "/login",  http.HandlerFunc(PostLogin))
 
-	router.GET("/", Home)
+	router.Get("/signup",  http.HandlerFunc(Signup))
 
-	router.GET("/login", Login)
+	router.HandleFunc("POST", "/signup",  http.HandlerFunc(PostSignup))
 
-	router.HandlerFunc("POST", "/login", PostLogin)
+	router.HandleFunc("GET", "/logout",  http.HandlerFunc(Logout))
 
-	router.GET("/signup", Signup)
+	router.Get("/authfail", http.HandlerFunc(Authfail))
 
-	router.HandlerFunc("POST", "/signup", PostSignup)
+	router.Get("/user", http.HandlerFunc(User))
 
-	router.HandlerFunc("GET", "/logout", Logout)
+	router.Get("/item/:id", http.HandlerFunc(Itemid))
 
-	router.GET("/authfail", Authfail)
-
-	router.GET("/user", User)
-
-	router.GET("/item/:id", Itemid)
-
-	n.Run(":2500")
+  router.Run(":2500")
 }
 
-func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Println(r)
+func Home(w http.ResponseWriter, r *http.Request) {
+
 	ShowItems(w, r)
 
 }
 
-func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	SimplePage(w, r, "try")
 
 }
 
-func Authfail(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Authfail(w http.ResponseWriter, r *http.Request) {
 	log.Print("Authorization Failed")
 }
 
-func User(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func User(w http.ResponseWriter, r *http.Request) {
 	SimpleAuthenticatedPage(w, r, "user")
 }
 
-func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	str := ps[0].Value
-
+func Itemid(w http.ResponseWriter, r *http.Request) {
+	url := hitch.Params(r).ByName("id")
+	var str string = url
+  fmt.Println(str)
 	var b int
-	if _, err := fmt.Sscanf(str, ":%s5d", &b); err == nil {
-		ShowItemid(w, r, b)
-	}
+		if _, err := fmt.Sscanf(str, ":%s5d", &b); err == nil {
+			ShowItemid(w, r, b)
+		}
 
 }
 
-func Signup(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Signup(w http.ResponseWriter, r *http.Request) {
 	SimplePage(w, r, "signup")
 }
 
@@ -120,12 +111,9 @@ func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 }
 
 func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
-	session := sessions.GetSession(req)
-sess := session.Get("email")
 
-if sess == nil {
-	http.Redirect(w, req, "/authfail", 301)
-}
+
+
 
 
 	r := render.New(render.Options{})
@@ -155,11 +143,9 @@ fmt.Println(req)
 		log.Print(err)
 		http.Redirect(w, req, "/authfail", 301)
 	}
-fmt.Println("bla")
 
-sess := sessions.GetSession(req)
 
-sess.Set("email", "bla")
+
 
 	http.Redirect(w, req, "/user", 302)
 }
@@ -183,8 +169,6 @@ func PostSignup(w http.ResponseWriter, req *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, req *http.Request) {
-	session := sessions.GetSession(req)
-	session.Delete("email")
 
 	http.Redirect(w, req, "/", 302)
 }
