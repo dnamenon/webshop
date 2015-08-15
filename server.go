@@ -12,7 +12,7 @@ import (
 
 
 	"github.com/jmoiron/sqlx"
-	"github.com/dnamenon/hitch"
+   "github.com/plimble/ace"
 	_ "github.com/lib/pq"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
@@ -45,9 +45,11 @@ func main() {
 
 	defer db.Close()
 
-	router := hitch.New(":2500")
 
-  router.Get("/", http.HandlerFunc(Home))
+	router := ace.Default()
+
+
+  router.GET("/", http.HandlerFunc(Home))
 
 	router.Get("/login",  http.HandlerFunc(Login))
 
@@ -111,11 +113,13 @@ func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 }
 
 func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
+session := session.GetSession(req)
 
+s := session.Id
 
-
-
-
+if s == nil{
+	http.Redirect(w, req, "/authfail",301)
+}
 	r := render.New(render.Options{})
 	r.HTML(w, http.StatusOK, template, nil)
 }
