@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"net/http"
-	"path"
-	"reflect"
-	"strings"
-	"time"
+	"io/ioutil"
+ "net/http"
+ "path/filepath"
+ "path"
+ "reflect"
+"strings"
+"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -44,6 +46,7 @@ func main() {
 	defer db.Close()
 
 	router := ace.Default()
+	router.Use(ace.Logger())
 
 	router.GET("/", Home)
 
@@ -62,6 +65,8 @@ func main() {
 	router.GET("/user", User)
 
 	router.GET("/item/:id", Itemid)
+
+	router.GET("/public/css/:cssfile", fileLoadHandler)
 
 	router.Run(":2500")
 }
@@ -245,4 +250,25 @@ func ShowItemid(c *ace.C, s string) {
 		IndentJSON: true,
 	})
 	render.HTML(c.Writer, http.StatusOK, "item", &itemid)
+}
+
+func fileLoadHandler(c *ace.C) {
+	url := c.Param("cssfile")
+	str := strings.TrimLeft(url, ":")
+	w := c.Writer
+
+ baseDir, _ := filepath.Abs("/Users/devmenon/golang/src/webshop/public/css/")
+
+ fileName := "/"+str
+ fmt.Println(fileName)
+ file, err := ioutil.ReadFile(fmt.Sprintf("%s%s", baseDir, fileName))
+
+ // Here we set the header.. Without this the browser
+ // won't use you css
+ w.Header().Set("Content-Type", "text/css")
+ fmt.Fprint(w, string(file))
+ if err != nil {
+  fmt.Println("Error reading file: ")
+  fmt.Println(err)
+ }
 }
