@@ -2,35 +2,23 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
+	"fmt"
 	"html/template"
 	"log"
-	"fmt"
+	"net/http"
 	"path"
 	"reflect"
-  "time"
-
-  "webshop/shopsess"
-
-<<<<<<< HEAD
+	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
-   "github.com/plimble/ace"
 	_ "github.com/lib/pq"
-=======
-	"github.com/codegangsta/negroni"
-	"github.com/goincremental/negroni-sessions"
-	"github.com/goincremental/negroni-sessions/cookiestore"
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
+	"github.com/plimble/ace"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/julienschmidt/httprouter"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 type Item struct {
-
 	Id          int
 	Title       string
 	Date        time.Time
@@ -40,224 +28,139 @@ type Item struct {
 	Image       string
 }
 
-
-
-
-
 var db *sqlx.DB = SetupDB()
 
-func SetupDB() *sqlx.DB{
+func SetupDB() *sqlx.DB {
 	db, err := sqlx.Connect("postgres", "user=devmenon dbname=webshop sslmode=disable")
-     if err != nil {
-         log.Fatalln(err)
-     }
-
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	return db
 }
 
-
-
 func main() {
 
-  defer db.Close()
-
-<<<<<<< HEAD
+	defer db.Close()
 
 	router := ace.Default()
 
-=======
-	s := shopsess.Sessions()
+	router.GET("/", Home)
 
-  router := httprouter.New()
-	n := negroni.Classic()
-  n.UseHandler(router)
-  n.Use(s)
+	router.GET("/login", Login)
 
-	store := cookiestore.New([]byte("ohhhsooosecret"))
-	n.Use(sessions.Sessions("global_session_store", store))
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
+	router.POST("/login", PostLogin)
 
-  router.GET("/", http.HandlerFunc(Home))
+	router.GET("/signup", Signup)
 
-<<<<<<< HEAD
-	router.Get("/login",  http.HandlerFunc(Login))
-=======
-  router.GET("/login", Login)
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
+	router.POST("/signup", PostSignup)
 
-	router.HandleFunc("POST", "/login",  http.HandlerFunc(PostLogin))
+	router.GET("/logout", Logout)
 
-<<<<<<< HEAD
-	router.Get("/signup",  http.HandlerFunc(Signup))
-=======
-  router.GET("/signup", Signup)
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
+	router.GET("/authfail", Authfail)
 
-	router.HandleFunc("POST", "/signup",  http.HandlerFunc(PostSignup))
+	router.GET("/user", User)
 
-<<<<<<< HEAD
-	router.HandleFunc("GET", "/logout",  http.HandlerFunc(Logout))
-=======
-	router.GET("/logout", LogoutPage)
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
+	router.GET("/item/:id", Itemid)
 
-	router.Get("/authfail", http.HandlerFunc(Authfail))
-
-	router.Get("/user", http.HandlerFunc(User))
-
-	router.Get("/item/:id", http.HandlerFunc(Itemid))
-
-  router.Run(":2500")
+	router.Run(":2500")
 }
 
-<<<<<<< HEAD
-func Home(w http.ResponseWriter, r *http.Request) {
+func Home(c *ace.C) {
+	var w = c.Writer
+	var r = c.Request
 
 	ShowItems(w, r)
 
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func Login(c *ace.C) {
+	var w = c.Writer
+	var r = c.Request
+
 	SimplePage(w, r, "try")
 
 }
 
-func Authfail(w http.ResponseWriter, r *http.Request) {
+func Authfail(c *ace.C) {
+
 	log.Print("Authorization Failed")
 }
 
-func User(w http.ResponseWriter, r *http.Request) {
+func User(c *ace.C) {
+	var w = c.Writer
+	var r = c.Request
+
 	SimpleAuthenticatedPage(w, r, "user")
 }
 
-func Itemid(w http.ResponseWriter, r *http.Request) {
-	url := hitch.Params(r).ByName("id")
-	var str string = url
-  fmt.Println(str)
-	var b int
-		if _, err := fmt.Sscanf(str, ":%s5d", &b); err == nil {
-			ShowItemid(w, r, b)
-		}
+func Itemid(c *ace.C) {
+
+	url := c.Param("id")
+	str := strings.Trim(url, ":")
+	fmt.Println(str)
+
+	ShowItemid(c, str)
 
 }
 
-func Signup(w http.ResponseWriter, r *http.Request) {
+func Signup(c *ace.C) {
+	var w = c.Writer
+	var r = c.Request
+
 	SimplePage(w, r, "signup")
-=======
-
-func Home(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
-ShowItems(w, r)
-
-}
-
-func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	SimplePage(w,r, "try")
-
-}
-
-func LogoutPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		Logout(w, r)
-	}
-
-func Authfail(w http.ResponseWriter, r *http.Request,  _ httprouter.Params){
-				log.Print("Authorization Failed")
-}
-
-func User(w http.ResponseWriter, r *http.Request,  _ httprouter.Params) {
-SimplePage(w, r, "user")
-}
-
-func Itemid(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
-   str := ps[0].Value
-
-	 var b int
-	 if _, err := fmt.Sscanf(str, ":%5d", &b); err == nil{
-		 ShowItemid(w,r,b)
-	 }
-
-}
-
-func Signup(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
-	SimplePage(w,r,"signup")
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
 }
 
 // end of page handlers
 //action handlers begin
 
 func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
+
 	r := render.New(render.Options{})
 	r.HTML(w, http.StatusOK, template, nil)
 }
-
 
 func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
-<<<<<<< HEAD
-session := session.GetSession(req)
 
-s := session.Id
-=======
-	session := sessions.GetSession(req)
-	sess := session.Get("email")
-
-	if sess == nil {
-		http.Redirect(w, req, "/authfail", 301)
-	}
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
-
-if s == nil{
-	http.Redirect(w, req, "/authfail",301)
-}
 	r := render.New(render.Options{})
 	r.HTML(w, http.StatusOK, template, nil)
 }
 
+func PostLogin(c *ace.C) {
+	var w = c.Writer
+	var req = c.Request
 
+	fmt.Println(req)
 
-func PostLogin(w http.ResponseWriter, req *http.Request){
+	var password_in_database string
+	var email string
 
-var password_in_database string
-var email string
-
-
-username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
-err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
-fmt.Println(password_in_database)
-		if err == sql.ErrNoRows {
-			http.Redirect(w, req, "/authfail", 301)
+	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
+	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
+	fmt.Println(username, password, email)
+	if err == sql.ErrNoRows {
+		http.Redirect(w, req, "/authfail", 301)
 	} else if err != nil {
-<<<<<<< HEAD
 		log.Print(err)
 		http.Redirect(w, req, "/authfail", 301)
 	}
 
+	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		http.Redirect(w, req, "/authfail", 301)
+	} else if err != nil {
+		log.Print(err)
+		http.Redirect(w, req, "/authfail", 301)
+	}
+	fmt.Println("bla")
 
-
-=======
-			log.Print(err)
-			http.Redirect(w, req, "/authfail", 301)
-		}
-
-err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			http.Redirect(w, req, "/authfail", 301)
-		} else if err != nil {
-			log.Print(err)
-			http.Redirect(w, req, "/authfail", 301)
-		}
-
-fmt.Println(req)
->>>>>>> parent of 92090ac... back to httprouter and negroni-sessions
-
-		session := sessions.GetSession(req)
-		session.Set("email", email)
-		http.Redirect(w, req, "/user", 302)
+	http.Redirect(w, req, "/user", 302)
 }
 
+func PostSignup(c *ace.C) {
+	var w = c.Writer
+	var req = c.Request
 
-
-func PostSignup(w http.ResponseWriter, req *http.Request) {
 	username := req.FormValue("reg_username")
 	password := req.FormValue("reg_password")
 	email := req.FormValue("reg_email")
@@ -275,65 +178,71 @@ func PostSignup(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/login", 302)
 }
 
-
-func Logout(w http.ResponseWriter, req *http.Request) {
+func Logout(c *ace.C) {
+	var w = c.Writer
+	var req = c.Request
 
 	http.Redirect(w, req, "/", 302)
 }
 
-
 func ShowItems(w http.ResponseWriter, r *http.Request) {
+
 	// Loop through rows using only one struct
-  item := Item{}
-     rows, err := db.Queryx("SELECT * FROM items")
-     for rows.Next() {
-         err = rows.StructScan(&item)
-         if err != nil {
-					 log.Print("is this the problem?")
-             log.Fatalln(err)
-         }
+	item := Item{}
+	rows, err := db.Queryx("SELECT * FROM items")
+	for rows.Next() {
+		err = rows.StructScan(&item)
+		if err != nil {
+			log.Print("is this the problem?")
+			log.Fatalln(err)
+		}
 
-  fmt.Printf("%#v\n", item)
-  fp := path.Join("templates", "home.tmpl")
+		fmt.Printf("%#v\n", item)
+		fp := path.Join("templates", "home.tmpl")
 
-loop := reflect.ValueOf(item)
+		loop := reflect.ValueOf(item)
 
-  values := make([]interface{}, loop.NumField())
+		values := make([]interface{}, loop.NumField())
 
-  for i := 0; i < loop.NumField(); i++ {
-			 values[i] = loop.Field(i).Interface()
-	 }
+		for i := 0; i < loop.NumField(); i++ {
+			values[i] = loop.Field(i).Interface()
+		}
 
+		tmpl, err := template.ParseFiles(fp)
+		if err != nil {
 
-		    tmpl, err := template.ParseFiles(fp)
-		    if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-		        http.Error(w, err.Error(), http.StatusInternalServerError)
-		        return
-		    }
+		if err := tmpl.Execute(w, item); err != nil {
+			fmt.Println("is this the error")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
-		    if err := tmpl.Execute(w, item); err != nil {
-					fmt.Println("is this the error")
-		        http.Error(w, err.Error(), http.StatusInternalServerError)
-		    }
-
-     }
+	}
 
 }
 
-func ShowItemid(w http.ResponseWriter, r *http.Request, i int){
+func ShowItemid(c *ace.C, s string) {
+	var w = c.Writer
+	var r = c.Request
+	fmt.Println(s)
 	itemid := Item{}
-	    err := db.Get(&itemid, "SELECT * FROM items WHERE id=$1", i)
-			if err != nil{
-				log.Print("This must be the problem")
-			}
+	err := db.Get(&itemid, "SELECT * FROM items WHERE id=$1", s)
+	if err != nil {
+		log.Print("This must be the problem")
+	}
 
-fmt.Printf("%#v\n", itemid.Id)
-if itemid.Id == 0{
-	fmt.Println("My Probz")
+	fmt.Printf("%#v\n", itemid.Id)
+	if itemid.Id == 0 {
+		fmt.Println("My Probz")
 
-	 http.Redirect(w, r, "/", 302)
-}
-render := render.New(render.Options{})
-render.HTML(w, http.StatusOK, "item", &itemid)
+		http.Redirect(w, r, "/", 302)
+	}
+
+	render := render.New(render.Options{
+		IndentJSON: true,
+	})
+	render.HTML(c.Writer, http.StatusOK, "item", &itemid)
 }

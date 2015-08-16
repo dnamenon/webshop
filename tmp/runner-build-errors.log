@@ -1,3 +1,0 @@
-# webshop
-./server.go:58: not enough arguments in call to shopsess.Sessions
-./server.go:58: shopsess.Sessions() used as value
