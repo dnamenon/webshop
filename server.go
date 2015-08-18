@@ -3,21 +3,23 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
+	//"html/template"
 	"log"
 	"io/ioutil"
- "net/http"
- "path/filepath"
- "path"
- "reflect"
-"strings"
-"time"
+  "net/http"
+  "path/filepath"
+  //"path"
+  //"reflect"
+  "strings"
+  "time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/plimble/ace"
+	//"github.com/astaxie/beego/session"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
+	//"github.com/Unknwon/paginater"
 )
 
 type Item struct {
@@ -40,6 +42,8 @@ func SetupDB() *sqlx.DB {
 
 	return db
 }
+
+
 
 func main() {
 
@@ -127,6 +131,9 @@ func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 
 func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
 
+
+
+
 	r := render.New(render.Options{})
 	r.HTML(w, http.StatusOK, template, nil)
 }
@@ -135,14 +142,13 @@ func PostLogin(c *ace.C) {
 	var w = c.Writer
 	var req = c.Request
 
-	fmt.Println(req)
+
 
 	var password_in_database string
 	var email string
 
 	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
 	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
-	fmt.Println(username, password, email)
 	if err == sql.ErrNoRows {
 		http.Redirect(w, req, "/authfail", 301)
 	} else if err != nil {
@@ -157,7 +163,9 @@ func PostLogin(c *ace.C) {
 		log.Print(err)
 		http.Redirect(w, req, "/authfail", 301)
 	}
-	fmt.Println("bla")
+
+
+
 
 	http.Redirect(w, req, "/user", 302)
 }
@@ -180,12 +188,17 @@ func PostSignup(c *ace.C) {
 		log.Print(err)
 	}
 
+
+
+
+
 	http.Redirect(w, req, "/login", 302)
 }
 
 func Logout(c *ace.C) {
 	var w = c.Writer
 	var req = c.Request
+
 
 	http.Redirect(w, req, "/", 302)
 }
@@ -202,30 +215,13 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln(err)
 		}
 
-		fmt.Printf("%#v\n", item)
-		fp := path.Join("templates", "home.tmpl")
+render := render.New(render.Options{
+		IndentJSON: true,
+	})
 
-		loop := reflect.ValueOf(item)
+render.HTML(w, http.StatusOK, "home", &item)
 
-		values := make([]interface{}, loop.NumField())
-
-		for i := 0; i < loop.NumField(); i++ {
-			values[i] = loop.Field(i).Interface()
-		}
-
-		tmpl, err := template.ParseFiles(fp)
-		if err != nil {
-
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, item); err != nil {
-			fmt.Println("is this the error")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-	}
+}
 
 }
 
