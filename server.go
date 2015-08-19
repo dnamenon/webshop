@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	//"html/template"
+	"html/template"
 	"log"
 	"io/ioutil"
   "net/http"
@@ -19,7 +19,7 @@ import (
 	//"github.com/astaxie/beego/session"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
-	//"github.com/Unknwon/paginater"
+	"github.com/Unknwon/paginater"
 )
 
 type Item struct {
@@ -31,6 +31,9 @@ type Item struct {
 	Price       string
 	Image       string
 }
+
+
+
 
 var db *sqlx.DB = SetupDB()
 
@@ -215,11 +218,18 @@ func ShowItems(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln(err)
 		}
 
-render := render.New(render.Options{
-		IndentJSON: true,
-	})
+//render := render.New(render.Options{
+	//	IndentJSON: true,
+	//})
 
-render.HTML(w, http.StatusOK, "home", &item)
+
+
+ p := paginater.New(45, 10, 3, 3)
+ Page := p
+
+//render.HTML(w, http.StatusOK, "home", &item)
+t, _ := template.ParseFiles("templates/home.tmpl")
+	 t.Execute(w, Page)
 
 }
 

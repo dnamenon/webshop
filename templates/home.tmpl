@@ -121,25 +121,34 @@
 
     <!-- Page Content -->
 
+
+
+
+    {{if not .Page.IsFirst}}[First](1){{end}}
+    {{if .Page.HasPrevious}}[Previous]({{.Page.Previous}}){{end}}
+
+    {{range .Page.Pages}}
+        {{if eq .Num -1}}
+
   <div class="container">
     <div class="row">
       <div class="col-md-12">
   			<div class="col-sm-6 col-md-4">
   				<div class="thumbnail" >
   					<h4 class="text-center"><span class="label label-info"></span></h4>
-  					<img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.Image}} class="img-responsive">
+  					<img src=https://raw.githubusercontent.com/dnamenon/webshop/master/brownie.jpg class="img-responsive">
   					<div class="caption">
   						<div class="row">
   							<div class="col-md-6 col-xs-6">
-  								<h3>{{.Title}}</h3>
+  								<h3><!--{{.Title}}--></h3>
   							</div>
   							<div class="col-md-6 col-xs-6 price">
   								<h3>
-  								<label>{{.Price}}</label>
+  								<label><!--{{.Price}}--></label>
                   </h3>
   							</div>
   						</div>
-  						<p>{{.Description}}</p>
+  						<p><!--{{.Description}}--></p>
   						<div class="row">
   							<div class="col-md-6">
   								<a href=item/:{{.Id}} class="btn btn-success btn-product"><span class="glyphicon glyphicon-shopping-cart"></span> Buy</a></div>
@@ -151,10 +160,13 @@
   			</div>
       </div>
    </div>
+   {else}}
+    {{.Num}}{{if .IsCurrent}}(current){{end}}
+    {{end}}
+{{end}}
 
-
-
-
+{{if .Page.HasNext}}[Next]({{.Page.Next}}){{end}}
+{{if not .Page.IsLast}}[Last]({{.Page.TotalPages}}){{end}}
 <!-- /.container -->
 
 <div class="container">
