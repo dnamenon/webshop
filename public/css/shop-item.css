@@ -6,7 +6,7 @@
 
 body {
     padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
-    background: url('https://raw.githubusercontent.com/dnamenon/webshop/master/images/background.jpg') fixed;
+    background: url('https://raw.githubusercontent.com/dnamenon/webshop/5a8c7e2c5afc8ec9f78f7a393c2d8e574810104d/images/background.jpg') fixed;
     background-size: cover;
     padding: 0;
     margin: 0;

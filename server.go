@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
+	//"html/template"
 	"log"
 	"io/ioutil"
   "net/http"
@@ -19,7 +19,7 @@ import (
 	//"github.com/astaxie/beego/session"
 	"github.com/unrolled/render"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/Unknwon/paginater"
+	//"github.com/dnamenon/paginater"
 )
 
 type Item struct {
@@ -55,7 +55,9 @@ func main() {
 	router := ace.Default()
 	router.Use(ace.Logger())
 
-	router.GET("/", Home)
+  homerouter := router.Group("/", Home)
+	homerouter.GET("/", Home)
+	homerouter.GET("/page/:pg", Pagination)
 
 	router.GET("/login", Login)
 
@@ -123,6 +125,9 @@ func Signup(c *ace.C) {
 	SimplePage(w, r, "signup")
 }
 
+func Pagination(c *ace.C){
+	c.String(200,"Just For Now")
+}
 // end of page handlers
 //action handlers begin
 
@@ -209,29 +214,25 @@ func Logout(c *ace.C) {
 func ShowItems(w http.ResponseWriter, r *http.Request) {
 
 	// Loop through rows using only one struct
-	item := Item{}
-	rows, err := db.Queryx("SELECT * FROM items")
-	for rows.Next() {
-		err = rows.StructScan(&item)
-		if err != nil {
-			log.Print("is this the problem?")
-			log.Fatalln(err)
-		}
+	items := []Item{}
+	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
+	if err != nil {
+		  log.Println("Is this the problem?")
+			log.Println(err)
+			return
+	}
 
-//render := render.New(render.Options{
-	//	IndentJSON: true,
-	//})
+log.Println("%#v\n", items)
 
 
-
- p := paginater.New(45, 10, 3, 3)
- Page := p
-
-//render.HTML(w, http.StatusOK, "home", &item)
-t, _ := template.ParseFiles("templates/home.tmpl")
-	 t.Execute(w, Page)
-
-}
+		render := render.New(render.Options{
+			IndentJSON: true,
+		})
+		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
+        "item0": items[0],
+				"item1": items[1],
+				"item2": items[2],
+    })
 
 }
 
@@ -245,9 +246,9 @@ func ShowItemid(c *ace.C, s string) {
 		log.Print("This must be the problem")
 	}
 
-	fmt.Printf("%#v\n", itemid.Id)
+
 	if itemid.Id == 0 {
-		fmt.Println("My Probz")
+
 
 		http.Redirect(w, r, "/", 302)
 	}
@@ -266,11 +267,9 @@ func fileLoadHandler(c *ace.C) {
  baseDir, _ := filepath.Abs("/Users/devmenon/golang/src/webshop/public/css/")
 
  fileName := "/"+str
- fmt.Println(fileName)
+
  file, err := ioutil.ReadFile(fmt.Sprintf("%s%s", baseDir, fileName))
 
- // Here we set the header.. Without this the browser
- // won't use you css
  w.Header().Set("Content-Type", "text/css")
  fmt.Fprint(w, string(file))
  if err != nil {
