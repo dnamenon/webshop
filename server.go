@@ -55,9 +55,9 @@ func main() {
 	router := ace.Default()
 	router.Use(ace.Logger())
 
-  homerouter := router.Group("/", Home)
-	homerouter.GET("/", Home)
-	homerouter.GET("/page/:pg", Pagination)
+	router.GET("/", Home)
+
+	router.GET("/page/:pg", Pagination)
 
 	router.GET("/login", Login)
 
@@ -84,7 +84,7 @@ func Home(c *ace.C) {
 	var w = c.Writer
 	var r = c.Request
 
-	ShowItems(w, r)
+	ShowItemsHome(w, r)
 
 }
 
@@ -126,7 +126,18 @@ func Signup(c *ace.C) {
 }
 
 func Pagination(c *ace.C){
-	c.String(200,"Just For Now")
+	var w = c.Writer
+	var r = c.Request
+
+	url := c.Param("pg")
+
+	str := strings.Trim(url, ":")
+
+
+	var b int
+	if _, err := fmt.Sscanf(str, "%5d", &b); err == nil{
+		ShowItemsPages(w, r, b)
+	}
 }
 // end of page handlers
 //action handlers begin
@@ -211,7 +222,7 @@ func Logout(c *ace.C) {
 	http.Redirect(w, req, "/", 302)
 }
 
-func ShowItems(w http.ResponseWriter, r *http.Request) {
+func ShowItemsHome(w http.ResponseWriter, r *http.Request) {
 
 	// Loop through rows using only one struct
 	items := []Item{}
@@ -232,6 +243,33 @@ log.Println("%#v\n", items)
         "item0": items[0],
 				"item1": items[1],
 				"item2": items[2],
+    })
+
+}
+
+func ShowItemsPages(w http.ResponseWriter, r *http.Request, num int) {
+
+	// Loop through rows using only one struct
+	items := []Item{}
+	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
+	if err != nil {
+		  log.Println("Is this the problem?")
+			log.Println(err)
+			return
+	}
+factor := num-1
+
+one,two,three := factor*3, (factor*3)+1, (factor*3)+2
+
+log.Println("%d\n %d\n %d\n", one, two, three)
+
+		render := render.New(render.Options{
+			IndentJSON: true,
+		})
+		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
+        "item0": items[one],
+				"item1": items[two],
+				"item2": items[three],
     })
 
 }
