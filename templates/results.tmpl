@@ -1,0 +1,134 @@
+<link href="/public/css/:bootstrap.min.css" rel="stylesheet">
+<link href="/public/css/:bootstrap.css" rel="stylesheet">
+<link href="/public/css/:nav.css" rel="stylesheet">
+<link href="/public/css/:results.css" rel="stylesheet">
+
+<nav class="navbar navbar-default navbar-fixed-top">
+<div class="container-fluid">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/">WEBSHOP</a>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+      <li><a href="#"> Shop </a></li>
+      <li><a href="/login">Login</a></li>
+      <li>
+      <form for="usersearch" id="usersearch" name="usersearch" class="navbar-form" role="search" action="/results">
+        <div class="input-group">
+          <input type="text" class="form-control" id="usersearch" name="usersearch" placeholder="Search" name="q">
+           <div class="input-group-btn">
+            <button class="btn btn-default" type="submit" formmethod="post"><i class="glyphicon glyphicon-search"></i></button>
+          </div>
+        </div>
+      </li>
+    </form>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
+        <ul class="dropdown-menu dropdown-cart" role="menu">
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li class="divider"></li>
+            <li><a class="text-center" href="">View Cart</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+    <hgroup class="mb20">
+		<h1>Search Results</h1>
+		<h2 class="lead"><strong class="text-danger">3</strong> results were found for the search for <strong class="text-danger">Lorem</strong></h2>
+	</hgroup>
+
+    <section class="col-xs-12 col-sm-6 col-md-12">
+		<article class="search-result row">
+			<div class="col-xs-12 col-sm-12 col-md-3">
+				<a href="#" title="Lorem ipsum" class="thumbnail"><img src="http://lorempixel.com/250/140/people" alt="Lorem ipsum" /></a>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-2">
+				<ul class="meta-search">
+					<li><i class="glyphicon glyphicon-calendar"></i> <span>02/15/2014</span></li>
+					<li><i class="glyphicon glyphicon-time"></i> <span>4:28 pm</span></li>
+					<li><i class="glyphicon glyphicon-tags"></i> <span>People</span></li>
+				</ul>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+				<h3><a href="#" title="">Voluptatem, exercitationem, suscipit, distinctio</a></h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis delectus doloremque.</p>
+                <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
+			</div>
+			<span class="clearfix borda"></span>
+		</article>
+
+    </section>
+</div>

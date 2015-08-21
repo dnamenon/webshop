@@ -3,13 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	//"html/template"
 	"log"
 	"io/ioutil"
   "net/http"
   "path/filepath"
-  //"path"
-  //"reflect"
   "strings"
   "time"
 
@@ -18,8 +15,8 @@ import (
 	"github.com/plimble/ace"
 	//"github.com/astaxie/beego/session"
 	"github.com/unrolled/render"
+
 	"golang.org/x/crypto/bcrypt"
-	//"github.com/dnamenon/paginater"
 )
 
 type Item struct {
@@ -59,6 +56,8 @@ func main() {
 
 	router.GET("/page/:pg", Pagination)
 
+	router.POST("/results", DisplaySearch)
+
 	router.GET("/login", Login)
 
 	router.POST("/login", PostLogin)
@@ -85,7 +84,6 @@ func Home(c *ace.C) {
 	var r = c.Request
 
 	ShowItemsHome(w, r)
-
 }
 
 func Login(c *ace.C) {
@@ -98,7 +96,7 @@ func Login(c *ace.C) {
 
 func Authfail(c *ace.C) {
 
-	log.Print("Authorization Failed")
+  log.Print("Authorization Failed")
 }
 
 func User(c *ace.C) {
@@ -110,7 +108,7 @@ func User(c *ace.C) {
 
 func Itemid(c *ace.C) {
 
-	url := c.Param("id")
+  url := c.Param("id")
 	str := strings.Trim(url, ":")
 	fmt.Println(str)
 
@@ -130,14 +128,20 @@ func Pagination(c *ace.C){
 	var r = c.Request
 
 	url := c.Param("pg")
-
 	str := strings.Trim(url, ":")
-
 
 	var b int
 	if _, err := fmt.Sscanf(str, "%5d", &b); err == nil{
 		ShowItemsPages(w, r, b)
 	}
+}
+
+func DisplaySearch(c *ace.C){
+	var w = c.Writer
+	var r = c.Request
+
+  Search(w,r)
+
 }
 // end of page handlers
 //action handlers begin
@@ -153,7 +157,7 @@ func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template 
 
 
 
-	r := render.New(render.Options{})
+  r := render.New(render.Options{})
 	r.HTML(w, http.StatusOK, template, nil)
 }
 
@@ -224,10 +228,10 @@ func Logout(c *ace.C) {
 
 func ShowItemsHome(w http.ResponseWriter, r *http.Request) {
 
-	// Loop through rows using only one struct
-	items := []Item{}
-	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
-	if err != nil {
+// Loop through rows using only one struct
+ items := []Item{}
+  err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
+  	if err != nil {
 		  log.Println("Is this the problem?")
 			log.Println(err)
 			return
@@ -236,7 +240,7 @@ func ShowItemsHome(w http.ResponseWriter, r *http.Request) {
 log.Println("%#v\n", items)
 
 
-		render := render.New(render.Options{
+	 	render := render.New(render.Options{
 			IndentJSON: true,
 		})
 		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
@@ -247,9 +251,9 @@ log.Println("%#v\n", items)
 
 }
 
-func ShowItemsPages(w http.ResponseWriter, r *http.Request, num int) {
+func ShowItemsPages(w http.ResponseWriter, r *http.Request, i int) {
 
-	// Loop through rows using only one struct
+ 	// Loop through rows using only one struct
 	items := []Item{}
 	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
 	if err != nil {
@@ -257,13 +261,13 @@ func ShowItemsPages(w http.ResponseWriter, r *http.Request, num int) {
 			log.Println(err)
 			return
 	}
-factor := num-1
 
+factor := i-1
 one,two,three := factor*3, (factor*3)+1, (factor*3)+2
 
 log.Println("%d\n %d\n %d\n", one, two, three)
 
-		render := render.New(render.Options{
+ 		render := render.New(render.Options{
 			IndentJSON: true,
 		})
 		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
@@ -294,7 +298,7 @@ func ShowItemid(c *ace.C, s string) {
 	render := render.New(render.Options{
 		IndentJSON: true,
 	})
-	render.HTML(c.Writer, http.StatusOK, "item", &itemid)
+ render.HTML(c.Writer, http.StatusOK, "item", &itemid)
 }
 
 func fileLoadHandler(c *ace.C) {
@@ -314,4 +318,34 @@ func fileLoadHandler(c *ace.C) {
   fmt.Println("Error reading file: ")
   fmt.Println(err)
  }
+}
+
+
+func Search(w http.ResponseWriter, r *http.Request){
+usersearch := r.FormValue("usersearch")
+
+itemsearch := []Item{}
+ err := db.Select(&itemsearch, "SELECT * FROM items ORDER BY id ASC")
+	if err != nil {
+		log.Println("Is this the problem?")
+		log.Println(err)
+		return
+}
+
+	max := len(itemsearch)
+
+
+
+
+	  for i := 0; i < max; i++ {
+			if usersearch == itemsearch[i].Title {
+				results := itemsearch[i]
+
+				render := render.New(render.Options{
+					IndentJSON: true,
+				})
+			 render.HTML(w, http.StatusOK, "results", &results)
+			}
+		}
+
 }
