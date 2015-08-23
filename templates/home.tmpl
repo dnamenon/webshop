@@ -134,10 +134,12 @@
 
 
 
-
+{{if .item0 }}
 {{$item0 := .item0 }}
-{{$item1 := .item1 }}
-{{$item2 := .item2 }}
+
+
+
+
 <div class="container">
   <div class="row">
     <div class="col-md-12">
@@ -164,6 +166,11 @@
         </div>
       </div>
     </div>
+    {{end}}
+
+    {{if .item1 }}
+    {{$item1 := .item1 }}
+
     <div class="col-sm-6 col-md-4">
       <div class="thumbnail" >
 
@@ -188,6 +195,10 @@
         </div>
       </div>
     </div>
+    {{end}}
+
+    {{if .item2 }}
+    {{$item2 := .item2 }}
           <div class="col-sm-6 col-md-4">
       <div class="thumbnail" >
         <img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{$item2.Image}} class="img-responsive">
@@ -213,6 +224,7 @@
     </div>
 
       </div>
+      {{end}}
 
 </div>
 </div>
@@ -226,7 +238,7 @@
               <li class="disabled"><a href="#">«</a></li>
               <li ><a href="/">1</a></li>
               <li><a href="/page/:2">2</a></li>
-              <li><a href="#">3</a></li>
+              <li><a href="/page/:3">3</a></li>
               <li><a href="#">4</a></li>
               <li><a href="#">5</a></li>
               <li class="disabled"><a href="#">»</a></li>

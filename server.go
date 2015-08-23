@@ -4,13 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"io/ioutil"
-  "net/http"
-  "path/filepath"
-  "strings"
-  "time"
+	"net/http"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/plimble/ace"
 	//"github.com/astaxie/beego/session"
@@ -19,153 +14,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Item struct {
-	Id          int
-	Title       string
-	Date        time.Time
-	Description string
-	Seller      string
-	Price       string
-	Image       string
-}
-
-
-
-
-var db *sqlx.DB = SetupDB()
-
-func SetupDB() *sqlx.DB {
-	db, err := sqlx.Connect("postgres", "user=devmenon dbname=webshop sslmode=disable")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return db
-}
-
-
-
-func main() {
-
-	defer db.Close()
-
-	router := ace.Default()
-	router.Use(ace.Logger())
-
-	router.GET("/", Home)
-
-	router.GET("/page/:pg", Pagination)
-
-	router.POST("/results", DisplaySearch)
-
-	router.GET("/login", Login)
-
-	router.POST("/login", PostLogin)
-
-	router.GET("/signup", Signup)
-
-	router.POST("/signup", PostSignup)
-
-	router.GET("/logout", Logout)
-
-	router.GET("/authfail", Authfail)
-
-	router.GET("/user", User)
-
-	router.GET("/item/:id", Itemid)
-
-	router.GET("/public/css/:cssfile", fileLoadHandler)
-
-	router.Run(":2500")
-}
-
-func Home(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
-
-	ShowItemsHome(w, r)
-}
-
-func Login(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
-
-	SimplePage(w, r, "try")
-
-}
-
-func Authfail(c *ace.C) {
-
-  log.Print("Authorization Failed")
-}
-
-func User(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
-
-	SimpleAuthenticatedPage(w, r, "user")
-}
-
-func Itemid(c *ace.C) {
-
-  url := c.Param("id")
-	str := strings.Trim(url, ":")
-	fmt.Println(str)
-
-	ShowItemid(c, str)
-
-}
-
-func Signup(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
-
-	SimplePage(w, r, "signup")
-}
-
-func Pagination(c *ace.C){
-	var w = c.Writer
-	var r = c.Request
-
-	url := c.Param("pg")
-	str := strings.Trim(url, ":")
-
-	var b int
-	if _, err := fmt.Sscanf(str, "%5d", &b); err == nil{
-		ShowItemsPages(w, r, b)
-	}
-}
-
-func DisplaySearch(c *ace.C){
-	var w = c.Writer
-	var r = c.Request
-
-  Search(w,r)
-
-}
-// end of page handlers
 //action handlers begin
-
-func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
-
-	r := render.New(render.Options{})
-	r.HTML(w, http.StatusOK, template, nil)
-}
-
-func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
-
-
-
-
-  r := render.New(render.Options{})
-	r.HTML(w, http.StatusOK, template, nil)
-}
 
 func PostLogin(c *ace.C) {
 	var w = c.Writer
 	var req = c.Request
-
-
 
 	var password_in_database string
 	var email string
@@ -186,9 +39,6 @@ func PostLogin(c *ace.C) {
 		log.Print(err)
 		http.Redirect(w, req, "/authfail", 301)
 	}
-
-
-
 
 	http.Redirect(w, req, "/user", 302)
 }
@@ -211,10 +61,6 @@ func PostSignup(c *ace.C) {
 		log.Print(err)
 	}
 
-
-
-
-
 	http.Redirect(w, req, "/login", 302)
 }
 
@@ -222,59 +68,75 @@ func Logout(c *ace.C) {
 	var w = c.Writer
 	var req = c.Request
 
-
 	http.Redirect(w, req, "/", 302)
 }
 
 func ShowItemsHome(w http.ResponseWriter, r *http.Request) {
 
-// Loop through rows using only one struct
- items := []Item{}
-  err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
-  	if err != nil {
-		  log.Println("Is this the problem?")
-			log.Println(err)
-			return
-	}
-
-log.Println("%#v\n", items)
-
-
-	 	render := render.New(render.Options{
-			IndentJSON: true,
-		})
-		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
-        "item0": items[0],
-				"item1": items[1],
-				"item2": items[2],
-    })
-
-}
-
-func ShowItemsPages(w http.ResponseWriter, r *http.Request, i int) {
-
- 	// Loop through rows using only one struct
+	// Loop through rows using only one struct
 	items := []Item{}
 	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
 	if err != nil {
-		  log.Println("Is this the problem?")
-			log.Println(err)
-			return
+		log.Println("Is this the problem?")
+		log.Println(err)
+		return
 	}
 
-factor := i-1
-one,two,three := factor*3, (factor*3)+1, (factor*3)+2
+	log.Println("%#v\n", items)
 
-log.Println("%d\n %d\n %d\n", one, two, three)
+	render := render.New(render.Options{
+		IndentJSON: true,
+	})
+	render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+		"item0": items[0],
+		"item1": items[1],
+		"item2": items[2],
+	})
 
- 		render := render.New(render.Options{
-			IndentJSON: true,
-		})
-		render.HTML(w, http.StatusOK, "home", map[string]interface{} {
-        "item0": items[one],
+}
+
+func ShowItemsPages(c *ace.C, i int) {
+	var w = c.Writer
+
+	// Loop through rows using only one struct
+	items := []Item{}
+	err := db.Select(&items, "SELECT * FROM items ORDER BY id ASC")
+	if err != nil {
+		log.Println("Is this the problem?")
+		log.Println(err)
+		return
+	}
+
+	max := len(items)
+	factor := i - 1
+	one, two, three := factor*3, (factor*3)+1, (factor*3)+2
+
+	log.Println("%d\n %d\n %d\n", one, two, three)
+	log.Println(max)
+	render := render.New(render.Options{
+		IndentJSON: true,
+	})
+	if one < max {
+		if max%3 == 0 {
+			render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+				"item0": items[one],
 				"item1": items[two],
 				"item2": items[three],
-    })
+			})
+		} else if max%3 == 2 {
+			render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+				"item0": items[one],
+				"item1": items[two],
+			})
+		} else if max%3 == 1 {
+			render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+				"item0": items[one],
+			})
+		}
+
+	} else {
+		c.Redirect("/")
+	}
 
 }
 
@@ -288,9 +150,7 @@ func ShowItemid(c *ace.C, s string) {
 		log.Print("This must be the problem")
 	}
 
-
 	if itemid.Id == 0 {
-
 
 		http.Redirect(w, r, "/", 302)
 	}
@@ -298,54 +158,5 @@ func ShowItemid(c *ace.C, s string) {
 	render := render.New(render.Options{
 		IndentJSON: true,
 	})
- render.HTML(c.Writer, http.StatusOK, "item", &itemid)
-}
-
-func fileLoadHandler(c *ace.C) {
-	url := c.Param("cssfile")
-	str := strings.TrimLeft(url, ":")
-	w := c.Writer
-
- baseDir, _ := filepath.Abs("/Users/devmenon/golang/src/webshop/public/css/")
-
- fileName := "/"+str
-
- file, err := ioutil.ReadFile(fmt.Sprintf("%s%s", baseDir, fileName))
-
- w.Header().Set("Content-Type", "text/css")
- fmt.Fprint(w, string(file))
- if err != nil {
-  fmt.Println("Error reading file: ")
-  fmt.Println(err)
- }
-}
-
-
-func Search(w http.ResponseWriter, r *http.Request){
-usersearch := r.FormValue("usersearch")
-
-itemsearch := []Item{}
- err := db.Select(&itemsearch, "SELECT * FROM items ORDER BY id ASC")
-	if err != nil {
-		log.Println("Is this the problem?")
-		log.Println(err)
-		return
-}
-
-	max := len(itemsearch)
-
-
-
-
-	  for i := 0; i < max; i++ {
-			if usersearch == itemsearch[i].Title {
-				results := itemsearch[i]
-
-				render := render.New(render.Options{
-					IndentJSON: true,
-				})
-			 render.HTML(w, http.StatusOK, "results", &results)
-			}
-		}
-
+	render.HTML(c.Writer, http.StatusOK, "item", &itemid)
 }
