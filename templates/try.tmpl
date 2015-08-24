@@ -28,6 +28,16 @@
     <ul class="nav navbar-nav">
       <li><a href="#"> Shop </a></li>
       <li><a href="/login">Login</a></li>
+      <li>
+      <form for="usersearch" id="usersearch" name="usersearch" class="navbar-form" role="search" action="/results">
+        <div class="input-group">
+          <input type="text" class="form-control" id="usersearch" name="usersearch" placeholder="Search" name="q">
+           <div class="input-group-btn">
+            <button class="btn btn-default" type="submit" formmethod="post"><i class="glyphicon glyphicon-search"></i></button>
+          </div>
+        </div>
+    </form>
+  </li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">

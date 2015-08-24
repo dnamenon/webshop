@@ -112,21 +112,58 @@
 
     <section class="col-xs-12 col-sm-6 col-md-12">
 		<article class="search-result row">
-      {{if .}}
+      {{if .result0}}
 			<div class="col-xs-12 col-sm-12 col-md-3">
-				<a href="#" title="Lorem ipsum" class="thumbnail"><img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.Image}} alt="Lorem ipsum" /></a>
+				<a href="#" title="Lorem ipsum" class="thumbnail"><img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.result0.Image}} alt="Lorem ipsum" /></a>
 			</div>
 			<div class="col-xs-12 col-sm-12 col-md-2">
 			</div>
 			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
-				<h3><a href=/item/:{{.Id}} title="">{{.Title}}</a></h3>
-				<p>{{.Description}}</p>
+				<h3><a href=/item/:{{.result0.Id}} title="">{{.result0.Title}}</a></h3>
+				<p>{{.result0.Description}}</p>
                 <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
 			</div>
       {{else}}
       <h3> No items found </h3>
-			<span class="clearfix borda"></span>
+			<span class="clearfix border"></span>
       {{end}}
+		</article>
+
+    </section>
+
+    <section class="col-xs-12 col-sm-6 col-md-12">
+		<article class="search-result row">
+      {{if .result1}}
+			<div class="col-xs-12 col-sm-12 col-md-3">
+				<a href="#" title="Lorem ipsum" class="thumbnail"><img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.result1.Image}} alt="Lorem ipsum" /></a>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-2">
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+				<h3><a href=/item/:{{.result1.Id}} title="">{{.result1.Title}}</a></h3>
+				<p>{{.result1.Description}}</p>
+                <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
+			</div>
+
+    {{end}}
+		</article>
+
+    </section>
+
+    <section class="col-xs-12 col-sm-6 col-md-12">
+		<article class="search-result row">
+      {{if .result2}}
+			<div class="col-xs-12 col-sm-12 col-md-3">
+				<a href="#" title="Lorem ipsum" class="thumbnail"><img src=https://raw.githubusercontent.com/dnamenon/webshop/master/{{.result2.Image}} alt="Lorem ipsum" /></a>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-2">
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+				<h3><a href=/item/:{{.result0.Id}} title="">{{.result2.Title}}</a></h3>
+				<p>{{.result2.Description}}</p>
+                <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
+			</div>
+    {{end}}
 		</article>
 
     </section>

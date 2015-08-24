@@ -66,7 +66,7 @@ func Pagination(c *ace.C) {
 }
 
 func DisplaySearch(c *ace.C) {
-	//	Search(c)
+	Search(c)
 }
 
 func Noresults(c *ace.C) {
