@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -17,10 +18,22 @@ func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 	r.HTML(w, http.StatusOK, template, nil)
 }
 
-func SimpleAuthenticatedPage(w http.ResponseWriter, req *http.Request, template string) {
+func SimpleAuthenticatedPage(c *ace.C, template string, data interface{}) {
+	w := c.Writer
+	r := c.Request
 
-	r := render.New(render.Options{})
-	r.HTML(w, http.StatusOK, template, nil)
+	sess, err := globalSessions.SessionStart(w, r)
+	defer sess.SessionRelease(c.Writer)
+
+	sessname := sess.Get("email")
+	log.Println(sessname)
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		r := render.New(render.Options{})
+		r.HTML(c.Writer, http.StatusOK, template, data)
+	}
 }
 
 func fileLoadHandler(c *ace.C) {

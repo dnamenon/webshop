@@ -41,7 +41,7 @@ func Compare(arr []Item, query string) (bool, []Item) {
 	return tf, results
 }
 
-func Search(c *ace.C) {
+func Search(c *ace.C, i int) {
 	r := c.Request
 	usersearch := r.FormValue("usersearch")
 
@@ -56,25 +56,28 @@ func Search(c *ace.C) {
 	compared, results := Compare(itemsearch, usersearch)
 	log.Println("%#v\n", results)
 	max := len(results)
+	factor := i - 1
+	one, two, three := factor*3, (factor*3)+1, (factor*3)+2
 
-	if compared {
+	if compared && max < 4 {
 		render := render.New(render.Options{})
 		if max == 3 {
 			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
-				"result0": results[0],
-				"result1": results[1],
-				"result2": results[2],
+				"result0": results[one],
+				"result1": results[two],
+				"result2": results[three],
 			})
 		} else if max == 2 {
 			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
-				"result0": results[0],
-				"result1": results[1],
+				"result0": results[one],
+				"result1": results[two],
 			})
 		} else if max == 1 {
 			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
-				"result0": results[0],
+				"result0": results[one],
 			})
 		}
+
 	} else {
 		c.Redirect("/noresults")
 	}

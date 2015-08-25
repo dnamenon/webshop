@@ -30,11 +30,9 @@ func Authfail(c *ace.C) {
 	log.Print("Authorization Failed")
 }
 
-func User(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func UserPage(c *ace.C) {
 
-	SimpleAuthenticatedPage(w, r, "user")
+	SimpleAuthenticatedPage(c, "user", nil)
 }
 
 func Itemid(c *ace.C) {
@@ -66,11 +64,29 @@ func Pagination(c *ace.C) {
 }
 
 func DisplaySearch(c *ace.C) {
-	Search(c)
+	url := c.Param("pg")
+	str := strings.Trim(url, ":")
+
+	var b int
+	if _, err := fmt.Sscanf(str, "%5d", &b); err == nil {
+		Search(c, b)
+	}
 }
 
 func Noresults(c *ace.C) {
 	var w = c.Writer
 	var r = c.Request
+	log.Println("login probz")
 	SimplePage(w, r, "results")
+}
+
+func CartPage(c *ace.C) {
+
+	CartHandler(c)
+}
+
+func BuyPage(c *ace.C) {
+	var w = c.Writer
+	var r = c.Request
+	SimplePage(w, r, "buy")
 }

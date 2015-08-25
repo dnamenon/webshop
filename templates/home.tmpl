@@ -50,7 +50,7 @@
           <li><a href="#"> Shop </a></li>
           <li><a href="/login">Login</a></li>
           <li>
-          <form for="usersearch" id="usersearch" name="usersearch" class="navbar-form" role="search" action="/results">
+          <form for="usersearch" id="usersearch" name="usersearch" class="navbar-form" role="search" action="/results/:1">
             <div class="input-group">
               <input type="text" class="form-control" id="usersearch" name="usersearch" placeholder="Search" name="q">
                <div class="input-group-btn">
@@ -61,9 +61,10 @@
       </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
+          <li> <a href="/logout"> Logout </a> </li>
 
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
+            <a href="/cart" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
             <ul class="dropdown-menu dropdown-cart" role="menu">
                 <li>
                     <span class="item">
