@@ -41,7 +41,7 @@ func fileLoadHandler(c *ace.C) {
 	str := strings.TrimLeft(url, ":")
 	w := c.Writer
 
-	baseDir, _ := filepath.Abs("/home/dev/golang/src/webshop/public/css/")
+	baseDir, _ := filepath.Abs("/Users/devmenon/golang/src/webshop/public/css/")
 
 	fileName := "/" + str
 

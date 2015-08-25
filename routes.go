@@ -36,7 +36,7 @@ type Cart struct {
 var db *sqlx.DB = SetupDB()
 
 func SetupDB() *sqlx.DB {
-	db, err := sqlx.Connect("postgres", "user=dev dbname=webshop sslmode=disable")
+	db, err := sqlx.Connect("postgres", "user=devmenon dbname=webshop sslmode=disable")
 	if err != nil {
 		log.Fatalln(err)
 	}
