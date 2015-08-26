@@ -23,7 +23,10 @@ func PostLogin(c *ace.C) {
 	sess, _ := globalSessions.SessionStart(w, req)
 	defer sess.SessionRelease(w)
 	sessname := sess.Get("email")
+	cartsess := sess.Get("cart")
+	var cart []string
 	fmt.Println(sessname)
+	fmt.Println(cartsess)
 
 	var password_in_database string
 	var email string
@@ -47,14 +50,12 @@ func PostLogin(c *ace.C) {
 
 	if err == nil {
 
-		log.Println("sess is working")
-		eyedee := sess.SessionID()
-		log.Println(eyedee)
-		err2 := sess.Flush()
+		err2 := sess.Delete("email")
 		err2 = sess.Set("email", email)
+		err2 = sess.Set("cart", cart)
 		log.Println(req)
 		if err2 == nil {
-			c.Redirect("/cart")
+			c.Redirect("/")
 		}
 	}
 

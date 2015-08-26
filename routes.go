@@ -26,11 +26,7 @@ type User struct {
 	Username string
 	Email    string
 	Password string
-	UserCart Cart
-}
-
-type Cart struct {
-	CartItems []Item
+	UserCart []Item
 }
 
 var db *sqlx.DB = SetupDB()
@@ -44,12 +40,15 @@ func SetupDB() *sqlx.DB {
 	return db
 }
 
+func init() {
+	globalSessions, _ = session.NewManager("file", `{"cookieName":"gosessionid","gclifetime":3600,"ProviderConfig":"./auth"}`)
+	go globalSessions.GC()
+
+}
+
 func main() {
 
 	defer db.Close()
-
-	globalSessions, _ = session.NewManager("file", `{"cookieName":"gosessionid","gclifetime":3600,"ProviderConfig":"./auth"}`)
-	go globalSessions.GC()
 
 	router := ace.Default()
 
@@ -76,6 +75,8 @@ func main() {
 	router.GET("/user", UserPage)
 
 	router.GET("/item/:id", Itemid)
+
+	router.GET("/addtocart", AddToCart)
 
 	router.GET("/cart", CartPage)
 
