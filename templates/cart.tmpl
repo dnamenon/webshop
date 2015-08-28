@@ -9,13 +9,17 @@
 
 </script>
 {{end}}
+
+
+ <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+
 <div class="container">
 	<table id="cart" class="table table-hover table-condensed" style="background-color:white">
     				<thead>
 						<tr>
 							<th style="width:50%"> </th>
 							<th style="width:10%">Price</th>
-							<th style="width:8%">Quantity</th>
+						  <th style="width:8%">Quantity</th>
 							<th style="width:22%" class="text-center">Subtotal</th>
 							<th style="width:10%"></th>
 						</tr>
@@ -32,17 +36,29 @@
 									</div>
 								</div>
 							</td>
-							<td data-th="Price">{{.item0.Price}}</td>
+							<td data-th="Price" id="box01" type="text" onblur="calculate()">{{.item0.Price}}</td>
 							<td data-th="Quantity">
-								<input type="number" class="form-control text-center" value="1">
+								<input id="box02" oninput="calculate()" type="text" class="form-control text-center" >
 							</td>
-							<td data-th="Subtotal" class="text-center">{{.item0.Price}}</td>
+							<td data-th="Subtotal" class="text-center" id="result0">$</td>
 							<td class="actions" data-th="">
 								<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-								<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+								<button id="ajax_button1" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
 							</td>
 						</tr>
+						<script>
+						 $(document).ready(function () {
+									 $('#ajax_button1').click(function () {
+											 $.ajax({
+												 url: 'deletefromcart',
+												 type: 'POST',
+												 data : { ajax_post_data: '{{.item0.Id}}'},
+											 });
+										});
+							});
+							</script>`
 						{{else}}
+						<script> </script>
 						   <h3> No items in cart</h3>
 						{{end}}
 
@@ -57,16 +73,27 @@
 									</div>
 								</div>
 							</td>
-							<td data-th="Price">{{.item1.Price}}</td>
+							<td data-th="Price" id="box11" type="text" onblur="calculate()">{{.item1.Price}}</td>
 							<td data-th="Quantity">
-								<input type="number" class="form-control text-center" value="1">
+								<input id="box12" oninput="calculate()" type="text" class="form-control text-center" >
 							</td>
-							<td data-th="Subtotal" class="text-center">{{.item1.Price}}</td>
+							<td data-th="Subtotal" class="text-center" id="result1">$</td>
 							<td class="actions" data-th="">
 								<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-								<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
-							</td>
+									<button id="ajax_button2" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+								</td>
 						</tr>
+						<script>
+						 $(document).ready(function () {
+									 $('#ajax_button2').click(function () {
+											 $.ajax({
+												 url: 'deletefromcart',
+												 type: 'POST',
+												 data : { ajax_post_data: '{{.item1.Id}}'},
+											 });
+										});
+							});
+							</script>`
 						{{end}}
 
 						{{if .item2}}
@@ -80,16 +107,27 @@
 									</div>
 								</div>
 							</td>
-							<td data-th="Price">{{.item2.Price}}</td>
+							<td data-th="Price" id="box21" type="text" onblur="calculate()">{{.item2.Price}}</td>
 							<td data-th="Quantity">
-								<input type="number" class="form-control text-center" value="1">
+								<input id="box22" oninput="calculate()" type="text" class="form-control text-center" >
 							</td>
-							<td data-th="Subtotal" class="text-center">{{.item2.Price}}</td>
+							<td data-th="Subtotal" class="text-center" id="result2">$</td>
 							<td class="actions" data-th="">
 								<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-								<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
-							</td>
+									<button id="ajax_button3" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+									</td>
 						</tr>
+						<script>
+						 $(document).ready(function () {
+									 $('#ajax_button3').click(function () {
+											 $.ajax({
+												 url: 'deletefromcart',
+												 type: 'POST',
+												 data : { ajax_post_data: '{{.item2.Id}}'},
+											 });
+										});
+							});
+							</script>`
 						{{end}}
 
 						{{if .item3}}
@@ -103,16 +141,27 @@
 									</div>
 								</div>
 							</td>
-							<td data-th="Price">{{.item3.Price}}</td>
+							<td data-th="Price" id="box31" type="text" onblur="calculate()">{{.item3.Price}}</td>
 							<td data-th="Quantity">
-								<input type="number" class="form-control text-center" value="1">
+								<input id="box32" oninput="calculate()" type="text" class="form-control text-center" >
 							</td>
-							<td data-th="Subtotal" class="text-center">{{.item3.Price}}</td>
+							<td data-th="Subtotal" class="text-center" id="result3">$</td>
 							<td class="actions" data-th="">
-								<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-								<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+									<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
+								<button id="ajax_button4" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
 							</td>
 						</tr>
+						<script>
+						 $(document).ready(function () {
+									 $('#ajax_button4').click(function () {
+											 $.ajax({
+												 url: 'deletefromcart',
+												 type: 'POST',
+												 data : { ajax_post_data: '{{.item3.Id}}'},
+											 });
+										});
+							});
+							</script>`
 						{{end}}
 
 						{{if .item4}}
@@ -126,16 +175,27 @@
 									</div>
 								</div>
 							</td>
-							<td data-th="Price">{{.item4.Price}}</td>
+						<td data-th="Price" id="box41" type="text" onblur="calculate()">{{.item4.Price}}</td>
 							<td data-th="Quantity">
-								<input type="number" class="form-control text-center" value="1">
-							</td>
-							<td data-th="Subtotal" class="text-center">{{.item4.Price}}</td>
+								<input id="box42" oninput="calculate()" type="text" class="form-control text-center" >
+
+							<td data-th="Subtotal" class="text-center" id="result4">$</td>
 							<td class="actions" data-th="">
 								<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-								<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
-							</td>
+									<button id="ajax_button5" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+                 </td>
 						</tr>
+						<script>
+						 $(document).ready(function () {
+									 $('#ajax_button5').click(function () {
+											 $.ajax({
+												 url: 'deletefromcart',
+												 type: 'POST',
+												 data : { ajax_post_data: '{{.item4.Id}}'},
+											 });
+										});
+							});
+							</script>`
 						{{end}}
 
 
@@ -154,3 +214,39 @@
 					</tfoot>
 				</table>
 </div>
+
+<script>
+function calculate() {
+	var myBox01 = document.getElementById('box01').value;
+	var myBox02 = document.getElementById('box02').value;
+	var result0 = document.getElementById('result0');
+	var myResult0 = myBox01 * myBox02;
+	result0.value = myResult0;
+
+	var myBox11 = document.getElementById('box11').value;
+	var myBox12 = document.getElementById('box12').value;
+	var result1 = document.getElementById('result1');
+	var myResult1 = myBox11 * myBox12;
+	result1.value = myResult;
+
+	var myBox21 = document.getElementById('box21').value;
+	var myBox22 = document.getElementById('box22').value;
+	var result2 = document.getElementById('result2');
+	var myResult2 = myBox21 * myBox22;
+	result2.value = myResult2;
+
+	var myBox31 = document.getElementById('box31').value;
+	var myBox32 = document.getElementById('box32').value;
+	var result3 = document.getElementById('result3');
+	var myResult3 = myBox31 * myBox32;
+	result3.value = myResult3;
+
+	var myBox41 = document.getElementById('box41').value;
+	var myBox42 = document.getElementById('box42').value;
+	var result4 = document.getElementById('result4');
+	var myResult4 = myBox42 * myBox42;
+	result4.value = myResult4;
+
+
+}
+</script>

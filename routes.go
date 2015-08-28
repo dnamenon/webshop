@@ -19,14 +19,8 @@ type Item struct {
 	Seller      string
 	Price       string
 	Image       string
-}
-
-type User struct {
-	Id       int
-	Username string
-	Email    string
-	Password string
-	UserCart []Item
+	Quantity    int
+	Num         int
 }
 
 var db *sqlx.DB = SetupDB()
@@ -75,6 +69,8 @@ func main() {
 	router.GET("/user", UserPage)
 
 	router.GET("/item/:id", Itemid)
+
+	router.POST("/deletefromcart", DeleteFromCart)
 
 	router.GET("/addtocart", AddToCart)
 
