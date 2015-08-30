@@ -78,6 +78,8 @@ func main() {
 
 	router.GET("/buy", BuyPage)
 
+	router.POST("/checkout", Checkout)
+
 	router.GET("/public/css/:cssfile", fileLoadHandler)
 
 	router.Run(":2500")

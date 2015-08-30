@@ -30,9 +30,15 @@ func AddToCart(c *ace.C) {
 			err = sess.Set("cart", cartstr)
 			if err == nil {
 				c.Redirect("/cart")
+			} else {
+				badstr := "You need to be signed in to add to cart"
+				BadPage(c, badstr)
 			}
 		}
 
+	} else {
+		badstr := "You need to be signed in to add to cart"
+		BadPage(c, badstr)
 	}
 }
 
@@ -98,6 +104,9 @@ func Cart(c *ace.C) {
 
 	if user != nil && err == nil {
 		RenderCart(c, itemsincart)
+	} else {
+		badstr := "Sorry, you must be signed in to access this page"
+		BadPage(c, badstr)
 	}
 
 }
@@ -218,11 +227,83 @@ func (slice intSlice) pos(value int) int {
 	return -1
 }
 
-func BuyQuantity(c *ace.C) {
+func Checkout(c *ace.C) {
+	r := c.Request
+	w := c.Writer
+	stripe.SetKey("sk_test_s7zyOcXwo4E9YLlBXpL4Ie44")
+	r.ParseMultipartForm(5)
+
+	sess, err := globalSessions.SessionStart(w, r)
+	defer sess.SessionRelease(w)
+
+	user := sess.Get("email")
+	cartcookie := sess.Get("cart")
+	badstr := "There was an error with your purchase."
+
+	cart := GetCart(cartcookie)
+	total := CartTotal(cart)
+	totalcent := total * 100
+	log.Println(totalcent)
+	totalcentint64 := int64(totalcent)
+
+	name := r.PostFormValue("nameoncard")
+	cardnum := r.PostFormValue("cardnumber")
+	expmonth := r.PostFormValue("expirationmonth")
+	expyear := r.PostFormValue("expirationyear")
+
+	if user != nil && err == nil {
+		err = sess.Delete("cart")
+
+		expmonthnum, _ := strconv.ParseInt(expmonth, 0, 64)
+		expyearnum, _ := strconv.ParseInt(expyear, 0, 64)
+		expyearnumint := int(expyearnum)
+		expmonthnumint := int(expmonthnum)
+		log.Println(totalcentint64)
+		params := stripe.ChargeParams{
+			Desc:     "Cart",
+			Amount:   totalcentint64,
+			Currency: "usd",
+			Card: &stripe.CardParams{
+				Name:     name,
+				Number:   cardnum,
+				ExpYear:  expyearnumint,
+				ExpMonth: expmonthnumint,
+			},
+		}
+		log.Println(params)
+		charge, err := stripe.Charges.Create(&params)
+
+		log.Println(charge)
+		log.Println(err)
+		if err == nil {
+			render := render.New(render.Options{})
+			render.HTML(c.Writer, http.StatusOK, "checkout", nil)
+		}
+	} else {
+		BadPage(c, badstr)
+	}
 
 }
 
 func Buy(c *ace.C) {
-	stripe.SetKey("sk_test_s7zyOcXwo4E9YLlBXpL4Ie44")
+	var w = c.Writer
+	var r = c.Request
+
+	sess, err := globalSessions.SessionStart(w, r)
+	defer sess.SessionRelease(w)
+
+	user := sess.Get("email")
+	cart := sess.Get("cart")
+
+	itemsincart := GetCart(cart)
+	total := CartTotal(itemsincart)
+	badstr := "you must be signed in to access this page"
+
+	if user != nil && err == nil {
+		render := render.New(render.Options{})
+		render.HTML(c.Writer, http.StatusOK, "buy", total)
+	} else {
+		BadPage(c, badstr)
+	}
 
 }

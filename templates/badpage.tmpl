@@ -1,0 +1,129 @@
+</head>
+</style>
+
+
+</style>
+
+<link href="/public/css/:bootstrap.min.css" rel="stylesheet">
+<link href="/public/css/:bootstrap.css" rel="stylesheet">
+<link href="/public/css/:nav.css" rel="stylesheet">
+
+
+</head>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+<div class="container-fluid">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/">WEBSHOP</a>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+      <li><a href="#"> Shop </a></li>
+      <li><a href="/login">Login</a></li>
+      <li>
+      <form for="usersearch" id="usersearch" name="usersearch" class="navbar-form" role="search" action="/results/:1">
+        <div class="input-group">
+          <input type="text" class="form-control" id="usersearch" name="usersearch" placeholder="Search" name="q">
+           <div class="input-group-btn">
+            <button class="btn btn-default" type="submit" formmethod="post"><i class="glyphicon glyphicon-search"></i></button>
+          </div>
+        </div>
+    </form>
+  </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li> <a href="/logout"> Logout </a> </li>
+
+      <li class="dropdown">
+        <a href="/cart" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
+        <ul class="dropdown-menu dropdown-cart" role="menu">
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li>
+                <span class="item">
+                  <span class="item-left">
+                      <img src="http://lorempixel.com/50/50/" alt="" />
+                      <span class="item-info">
+                          <span>Item name</span>
+                          <span>23$</span>
+                      </span>
+                  </span>
+                  <span class="item-right">
+                      <button class="btn btn-xs btn-danger pull-right">x</button>
+                  </span>
+              </span>
+            </li>
+            <li class="divider"></li>
+            <li><a class="text-center" href="">View Cart</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container">
+  <div class="row">
+    <div class="span12">
+      <div class="hero-unit center" style="text-align: center; margin-left: auto; margin-right: auto; margin-bottom: auto; margin-top: auto; padding-top:20%;">
+          <h1>Sorry!!</h1>
+          <br />
+          <p>{{.}}</p>
+          <a href="/" class="btn btn-large btn-info"><i class="icon-home icon-white"></i> Take Me Home</a>
+        </div>
+
+
+        <!-- By ConnerT HTML & CSS Enthusiast -->
+    </div>
+  </div>
+</div>

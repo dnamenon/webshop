@@ -38,8 +38,9 @@
   </li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
+      <li> <a href="/logout"> Logout </a> </li>
       <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
+        <a href="/cart" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-shopping-cart"></span> 7 - Items<span class="caret"></span></a>
         <ul class="dropdown-menu dropdown-cart" role="menu">
             <li>
                 <span class="item">
@@ -131,7 +132,7 @@
 	<div class="row nav">
         <div class="col-md-4"></div>
         <div class="col-md-8 col-xs-12" style="margin: 0px;padding: 0px;">
-            <div class="col-md-4 col-xs-4 well"><i class="fa fa-weixin fa-lg"></i>{{.Price}}</div>
+            <div class="col-md-4 col-xs-4 well"><i class="fa fa-weixin fa-lg"></i>${{.Price}}</div>
           <a href="/addtocart">  <div class="col-md-4 col-xs-4 well"><i class="fa fa-heart-o fa-lg"></i>Add to cart</div> </a>
             <div class="col-md-4 col-xs-4 well"><i class="fa fa-thumbs-o-up fa-lg"></i>product from {{.Seller}}</div>
         </div>

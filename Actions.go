@@ -31,21 +31,23 @@ func PostLogin(c *ace.C) {
 	var password_in_database string
 	var email string
 
+	badstr := "Authorization Failed"
+
 	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
 	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 	if err == sql.ErrNoRows {
-		http.Redirect(w, req, "/authfail", 301)
+		BadPage(c, badstr)
 	} else if err != nil {
 		log.Print(err)
-		http.Redirect(w, req, "/authfail", 301)
+		BadPage(c, badstr)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		http.Redirect(w, req, "/authfail", 301)
+		BadPage(c, badstr)
 	} else if err != nil {
 		log.Print(err)
-		http.Redirect(w, req, "/authfail", 301)
+		BadPage(c, badstr)
 	}
 
 	if err == nil {

@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 
 	"github.com/plimble/ace"
+	"github.com/unrolled/render"
 )
 
 // Page Handlers
@@ -138,7 +140,13 @@ func CartPage(c *ace.C) {
 }
 
 func BuyPage(c *ace.C) {
+
+	Buy(c)
+}
+
+func BadPage(c *ace.C, str string) {
 	var w = c.Writer
-	var r = c.Request
-	SimplePage(w, r, "buy")
+
+	render := render.New(render.Options{})
+	render.HTML(w, http.StatusOK, "badpage", str)
 }
