@@ -278,6 +278,8 @@ func Checkout(c *ace.C) {
 		if err == nil {
 			render := render.New(render.Options{})
 			render.HTML(c.Writer, http.StatusOK, "checkout", nil)
+		}else {
+			BadPage(c, badstr)
 		}
 	} else {
 		BadPage(c, badstr)
