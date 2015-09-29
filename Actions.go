@@ -134,6 +134,7 @@ func ShowItemsPages(c *ace.C, i int) {
 	}
 
 	max := len(items)
+	maxparam := max - 3
 	factor := i - 1
 	one, two, three := factor*3, (factor*3)+1, (factor*3)+2
 
@@ -142,7 +143,7 @@ func ShowItemsPages(c *ace.C, i int) {
 	render := render.New(render.Options{
 		IndentJSON: true,
 	})
-	if one < max {
+	if one >= maxparam {
 		if max%3 == 0 {
 			render.HTML(w, http.StatusOK, "home", map[string]interface{}{
 				"item0": items[one],
@@ -160,6 +161,12 @@ func ShowItemsPages(c *ace.C, i int) {
 			})
 		}
 
+	} else if one < maxparam {
+		render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+			"item0": items[one],
+			"item1": items[two],
+			"item2": items[three],
+		})
 	} else {
 		c.Redirect("/")
 	}
