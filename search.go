@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	_ "github.com/lib/pq"
-	"github.com/plimble/ace"
 	"github.com/unrolled/render"
 )
 
@@ -41,8 +40,8 @@ func Compare(arr []Item, query string) (bool, []Item) {
 	return tf, results
 }
 
-func Search(c *ace.C, i int) {
-	r := c.Request
+func Search(w http.ResponseWriter, r *http.Request, i int) {
+
 	usersearch := r.FormValue("usersearch")
 
 	itemsearch := []Item{}
@@ -62,23 +61,23 @@ func Search(c *ace.C, i int) {
 	if compared && max < 4 {
 		render := render.New(render.Options{})
 		if max == 3 {
-			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
+			render.HTML(w, http.StatusOK, "results", map[string]interface{}{
 				"result0": results[one],
 				"result1": results[two],
 				"result2": results[three],
 			})
 		} else if max == 2 {
-			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
+			render.HTML(w, http.StatusOK, "results", map[string]interface{}{
 				"result0": results[one],
 				"result1": results[two],
 			})
 		} else if max == 1 {
-			render.HTML(c.Writer, http.StatusOK, "results", map[string]interface{}{
+			render.HTML(w, http.StatusOK, "results", map[string]interface{}{
 				"result0": results[one],
 			})
 		}
 
 	} else {
-		c.Redirect("/noresults")
+		http.Redirect(w, r, "/noresults", http.StatusFound)
 	}
 }

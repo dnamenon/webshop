@@ -7,18 +7,16 @@ import (
 	"net/http"
 
 	_ "github.com/lib/pq"
-	"github.com/plimble/ace"
-	//"github.com/astaxie/beego/session"
 	"github.com/unrolled/render"
+	"github.com/julienschmidt/httprouter"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 //action handlers begin
 
-func PostLogin(c *ace.C) {
-	var w = c.Writer
-	var req = c.Request
+func PostLogin(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+
 
 	sess, _ := globalSessions.SessionStart(w, req)
 	defer sess.SessionRelease(w)
@@ -36,18 +34,18 @@ func PostLogin(c *ace.C) {
 	username, password := req.FormValue("inputUsername"), req.FormValue("inputPassword")
 	err := db.QueryRow("SELECT email, password FROM users WHERE username=$1", username).Scan(&email, &password_in_database)
 	if err == sql.ErrNoRows {
-		BadPage(c, badstr)
+		BadPage(w,req, badstr)
 	} else if err != nil {
 		log.Print(err)
-		BadPage(c, badstr)
+		BadPage(w,req, badstr)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(password_in_database), []byte(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		BadPage(c, badstr)
+		BadPage(w,req, badstr)
 	} else if err != nil {
 		log.Print(err)
-		BadPage(c, badstr)
+		BadPage(w,req, badstr)
 	}
 
 	if err == nil {
@@ -57,15 +55,14 @@ func PostLogin(c *ace.C) {
 		err2 = sess.Set("cart", cart)
 		log.Println(req)
 		if err2 == nil {
-			c.Redirect("/")
+			http.Redirect(w, req, "/", http.StatusFound)
 		}
 	}
 
 }
 
-func PostSignup(c *ace.C) {
-	var w = c.Writer
-	var req = c.Request
+func PostSignup(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+
 
 	username := req.FormValue("reg_username")
 	password := req.FormValue("reg_password")
@@ -84,9 +81,8 @@ func PostSignup(c *ace.C) {
 	http.Redirect(w, req, "/login", 302)
 }
 
-func Logout(c *ace.C) {
-	var w = c.Writer
-	var req = c.Request
+func Logout(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+
 
 	sess, _ := globalSessions.SessionStart(w, req)
 	globalSessions.SessionDestroy(w, req)
@@ -121,8 +117,8 @@ func ShowItemsHome(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ShowItemsPages(c *ace.C, i int) {
-	var w = c.Writer
+func ShowItemsPages(w http.ResponseWriter, r *http.Request, i int) {
+
 
 	// Loop through rows using only one struct
 	items := []Item{}
@@ -168,14 +164,13 @@ func ShowItemsPages(c *ace.C, i int) {
 			"item2": items[three],
 		})
 	} else {
-		c.Redirect("/")
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 }
 
-func ShowItemid(c *ace.C, s string) {
-	var w = c.Writer
-	var r = c.Request
+func ShowItemid(w http.ResponseWriter, r *http.Request, s string) {
+
 	fmt.Println(s)
 	itemid := Item{}
 	err := db.Get(&itemid, "SELECT * FROM items WHERE id=$1", s)
@@ -191,5 +186,5 @@ func ShowItemid(c *ace.C, s string) {
 	render := render.New(render.Options{
 		IndentJSON: true,
 	})
-	render.HTML(c.Writer, http.StatusOK, "item", &itemid)
+	render.HTML(w, http.StatusOK, "item", &itemid)
 }

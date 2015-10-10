@@ -6,7 +6,9 @@ import (
 
 	"github.com/astaxie/beego/session"
 	"github.com/jmoiron/sqlx"
-	"github.com/plimble/ace"
+	"github.com/codegangsta/negroni"
+	"github.com/julienschmidt/httprouter"
+	"gopkg.in/igm/sockjs-go.v2/sockjs"
 )
 
 var globalSessions *session.Manager
@@ -20,7 +22,6 @@ type Item struct {
 	Price       string
 	Image       string
 	Quantity    int
-	Num         int
 }
 
 var db *sqlx.DB = SetupDB()
@@ -44,7 +45,12 @@ func main() {
 
 	defer db.Close()
 
-	router := ace.Default()
+  router := httprouter.New()
+
+	n := negroni.Classic()
+  n.UseHandler(router)
+
+
 
 	router.GET("/", Home)
 
@@ -82,5 +88,19 @@ func main() {
 
 	router.GET("/public/css/:cssfile", fileLoadHandler)
 
-	router.Run(":2500")
+	handler := sockjs.NewHandler("/", sockjs.DefaultOptions, echoHandler)
+
+	router.Handler("GET","/chat", handler)
+
+	n.Run(":2500")
+}
+
+func echoHandler(session sockjs.Session) {
+    for {
+        if msg, err := session.Recv(); err == nil {
+            session.Send(msg)
+            continue
+        }
+        break
+    }
 }

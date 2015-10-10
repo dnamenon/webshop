@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/plimble/ace"
+	"github.com/julienschmidt/httprouter"
 	"github.com/unrolled/render"
 )
 
@@ -18,12 +18,10 @@ func SimplePage(w http.ResponseWriter, req *http.Request, template string) {
 	r.HTML(w, http.StatusOK, template, nil)
 }
 
-func SimpleAuthenticatedPage(c *ace.C, template string, data interface{}) {
-	w := c.Writer
-	r := c.Request
+func SimpleAuthenticatedPage(w http.ResponseWriter, r *http.Request, template string, data interface{}) {
 
 	sess, err := globalSessions.SessionStart(w, r)
-	defer sess.SessionRelease(c.Writer)
+	defer sess.SessionRelease(w)
 
 	sessname := sess.Get("email")
 	log.Println(sessname)
@@ -32,14 +30,14 @@ func SimpleAuthenticatedPage(c *ace.C, template string, data interface{}) {
 		log.Println(err)
 	} else {
 		r := render.New(render.Options{})
-		r.HTML(c.Writer, http.StatusOK, template, data)
+		r.HTML(w, http.StatusOK, template, data)
 	}
 }
 
-func fileLoadHandler(c *ace.C) {
-	url := c.Param("cssfile")
+func fileLoadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	url := ps.ByName("cssfile")
 	str := strings.TrimLeft(url, ":")
-	w := c.Writer
+
 
 	baseDir, _ := filepath.Abs("/Users/devmenon/golang/src/webshop/public/css/")
 

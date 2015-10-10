@@ -6,15 +6,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/plimble/ace"
+	"github.com/julienschmidt/httprouter"
 	"github.com/unrolled/render"
 )
 
 // Page Handlers
 
-func Home(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -24,9 +22,8 @@ func Home(c *ace.C) {
 	ShowItemsHome(w, r)
 }
 
-func Login(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -38,21 +35,19 @@ func Login(c *ace.C) {
 
 }
 
-func Authfail(c *ace.C) {
+func Authfail(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	log.Print("Authorization Failed")
 }
 
-func UserPage(c *ace.C) {
+func UserPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	SimpleAuthenticatedPage(c, "user", nil)
+	SimpleAuthenticatedPage(w,r, "user", nil)
 }
 
-func Itemid(c *ace.C) {
-	req := c.Request
-	w := c.Writer
+func Itemid(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
-	url := c.Param("id")
+	url := ps.ByName("id")
 	str := strings.Trim(url, ":")
 	fmt.Println(str)
 
@@ -66,14 +61,13 @@ func Itemid(c *ace.C) {
 
 		err = sess.Set("itemid", str)
 
-		ShowItemid(c, str)
+		ShowItemid(w,req, str)
 	}
 
 }
 
-func Signup(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Signup(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -83,46 +77,43 @@ func Signup(c *ace.C) {
 	SimplePage(w, r, "signup")
 }
 
-func Pagination(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Pagination(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
 
 	err = sess.Delete("itemid")
 
-	url := c.Param("pg")
+	url := ps.ByName("pg")
 	str := strings.Trim(url, ":")
 
 	var b int
 	if _, err = fmt.Sscanf(str, "%5d", &b); err == nil {
 		log.Println(err)
-		ShowItemsPages(c, b)
+		ShowItemsPages(w,r, b)
 	}
 }
 
-func DisplaySearch(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func DisplaySearch(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
 
 	err = sess.Delete("itemid")
 
-	url := c.Param("pg")
+	url := ps.ByName("pg")
 	str := strings.Trim(url, ":")
 
 	var b int
 	if _, err = fmt.Sscanf(str, "%5d", &b); err == nil {
-		Search(c, b)
+		Search(w , r , b)
 	}
 }
 
-func Noresults(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Noresults(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -134,18 +125,17 @@ func Noresults(c *ace.C) {
 	SimplePage(w, r, "results")
 }
 
-func CartPage(c *ace.C) {
+func CartPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	Cart(c)
+	Cart(w,r)
 }
 
-func BuyPage(c *ace.C) {
+func BuyPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	Buy(c)
+	Buy(w,r)
 }
 
-func BadPage(c *ace.C, str string) {
-	var w = c.Writer
+func BadPage(w http.ResponseWriter, r *http.Request, str string) {
 
 	render := render.New(render.Options{})
 	render.HTML(w, http.StatusOK, "badpage", str)

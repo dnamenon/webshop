@@ -8,13 +8,11 @@ import (
 	"strings"
 
 	"github.com/drone/go.stripe"
-	"github.com/plimble/ace"
+	"github.com/julienschmidt/httprouter"
 	"github.com/unrolled/render"
 )
 
-func AddToCart(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func AddToCart(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -29,22 +27,20 @@ func AddToCart(c *ace.C) {
 		if err == nil && user != nil {
 			err = sess.Set("cart", cartstr)
 			if err == nil {
-				c.Redirect("/cart")
+				http.Redirect(w, r, "/cart", http.StatusFound)
 			} else {
 				badstr := "You need to be signed in to add to cart"
-				BadPage(c, badstr)
+				BadPage(w,r, badstr)
 			}
 		}
 
 	} else {
 		badstr := "You need to be signed in to add to cart"
-		BadPage(c, badstr)
+		BadPage(w,r, badstr)
 	}
 }
 
-func DeleteFromCart(c *ace.C) {
-	w := c.Writer
-	r := c.Request
+func DeleteFromCart(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -72,16 +68,15 @@ func DeleteFromCart(c *ace.C) {
 		log.Println(cart)
 		err = sess.Set("cart", a)
 
-		RenderCart(c, cart)
+		RenderCart(w,r, cart)
 
 		log.Println(err)
 
 	}
 }
 
-func Cart(c *ace.C) {
-	w := c.Writer
-	r := c.Request
+func Cart(w http.ResponseWriter, r *http.Request) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -103,10 +98,10 @@ func Cart(c *ace.C) {
 	}
 
 	if user != nil && err == nil {
-		RenderCart(c, itemsincart)
+		RenderCart(w,r, itemsincart)
 	} else {
 		badstr := "Sorry, you must be signed in to access this page"
-		BadPage(c, badstr)
+		BadPage(w,r, badstr)
 	}
 
 }
@@ -142,12 +137,12 @@ func CartTotal(cart []Item) float64 {
 	return total
 }
 
-func RenderCart(c *ace.C, itemsincart []Item) {
+func RenderCart(w http.ResponseWriter, r *http.Request, itemsincart []Item) {
 	max := len(itemsincart)
 	render := render.New(render.Options{})
 	if max == 5 {
 		total := CartTotal(itemsincart)
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"item0": itemsincart[0],
 			"item1": itemsincart[1],
@@ -157,7 +152,7 @@ func RenderCart(c *ace.C, itemsincart []Item) {
 		})
 	} else if max == 4 {
 		total := CartTotal(itemsincart)
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"item0": itemsincart[0],
 			"item1": itemsincart[1],
@@ -166,7 +161,7 @@ func RenderCart(c *ace.C, itemsincart []Item) {
 		})
 	} else if max == 3 {
 		total := CartTotal(itemsincart)
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"item0": itemsincart[0],
 			"item1": itemsincart[1],
@@ -174,24 +169,24 @@ func RenderCart(c *ace.C, itemsincart []Item) {
 		})
 	} else if max == 2 {
 		total := CartTotal(itemsincart)
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"item0": itemsincart[0],
 			"item1": itemsincart[1],
 		})
 	} else if max == 1 {
 		total := CartTotal(itemsincart)
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"item0": itemsincart[0],
 		})
 	} else if max == 0 {
-		SimplePage(c.Writer, c.Request, "cart")
+		SimplePage(w, r, "cart")
 	} else if max > 5 {
 		total := CartTotal(itemsincart)
 		maxitems := true
 
-		render.HTML(c.Writer, http.StatusOK, "cart", map[string]interface{}{
+		render.HTML(w, http.StatusOK, "cart", map[string]interface{}{
 			"total": total,
 			"max":   maxitems,
 			"item0": itemsincart[0],
@@ -227,9 +222,8 @@ func (slice intSlice) pos(value int) int {
 	return -1
 }
 
-func Checkout(c *ace.C) {
-	r := c.Request
-	w := c.Writer
+func Checkout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 	stripe.SetKey("sk_test_s7zyOcXwo4E9YLlBXpL4Ie44")
 	r.ParseMultipartForm(5)
 
@@ -277,19 +271,18 @@ func Checkout(c *ace.C) {
 		log.Println(err)
 		if err == nil {
 			render := render.New(render.Options{})
-			render.HTML(c.Writer, http.StatusOK, "checkout", nil)
+			render.HTML(w, http.StatusOK, "checkout", nil)
 		}else {
-			BadPage(c, badstr)
+			BadPage(w,r, badstr)
 		}
 	} else {
-		BadPage(c, badstr)
+		BadPage(w,r, badstr)
 	}
 
 }
 
-func Buy(c *ace.C) {
-	var w = c.Writer
-	var r = c.Request
+func Buy(w http.ResponseWriter, r *http.Request) {
+
 
 	sess, err := globalSessions.SessionStart(w, r)
 	defer sess.SessionRelease(w)
@@ -303,9 +296,9 @@ func Buy(c *ace.C) {
 
 	if user != nil && err == nil {
 		render := render.New(render.Options{})
-		render.HTML(c.Writer, http.StatusOK, "buy", total)
+		render.HTML(w, http.StatusOK, "buy", total)
 	} else {
-		BadPage(c, badstr)
+		BadPage(w,r, badstr)
 	}
 
 }
